@@ -2,3 +2,6 @@ project_id = "creamynut-shop"
 
 [functions.receipt-email]
 verify_jwt = true
+
+[functions.backoffice]
+verify_jwt = false

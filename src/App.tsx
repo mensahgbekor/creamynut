@@ -10,14 +10,14 @@ import { Story, Reviews } from '@/components/Story';
 import { Footer } from '@/components/Footer';
 import { CartDrawer } from '@/components/CartDrawer';
 import { Checkout } from '@/components/Checkout';
-import { OwnerDashboard } from '@/components/OwnerDashboard';
+import { Backoffice } from '@/components/backoffice/Backoffice';
 import { ToastStack } from '@/components/Toast';
 
 function Storefront() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [page, setPage] = useState<'home' | 'checkout' | 'owner'>('home');
+  const [page, setPage] = useState<'home' | 'checkout' | 'backoffice'>('home');
   const cart = useCart();
 
   useEffect(() => {
@@ -29,8 +29,8 @@ function Storefront() {
 
   useEffect(() => {
     const checkHash = () => {
-      if (window.location.hash === '#owner') {
-        setPage('owner');
+      if (window.location.hash === '#backoffice') {
+        setPage('backoffice');
         window.scrollTo({ top: 0 });
       } else if (window.location.hash === '#checkout') {
         setPage('checkout');
@@ -80,7 +80,7 @@ function Storefront() {
             <Checkout onBack={() => { setPage('home'); window.location.hash = ''; }} />
           </div>
         ) : (
-          <OwnerDashboard onBack={() => { setPage('home'); window.location.hash = ''; }} />
+          <Backoffice onBack={() => { setPage('home'); window.location.hash = ''; }} />
         )}
       </main>
       <Footer />
