@@ -1,0 +1,4 @@
+project_id = "creamynut-shop"
+
+[functions.receipt-email]
+verify_jwt = true

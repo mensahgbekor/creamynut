@@ -1,0 +1,21 @@
+export function BrandMark({ className = 'h-10 w-10' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 120 120" className={className} aria-hidden="true">
+      <circle cx="60" cy="60" r="58" fill="#6c371a" />
+      <circle cx="60" cy="60" r="50" fill="#83421c" />
+      <path
+        d="M36 38c0-13 10-24 24-24s24 11 24 24v20c0 14-11 26-24 26S36 72 36 58V38z"
+        fill="#e3a33d"
+      />
+      <path
+        d="M42 40c0-11 8-19 18-19s18 8 18 19v18c0 12-8 21-18 21s-18-9-18-21V40z"
+        fill="#eabd66"
+      />
+      <ellipse cx="60" cy="46" rx="8" ry="12" fill="#f9edd0" opacity="0.8" />
+      <ellipse cx="44" cy="78" rx="9" ry="12" fill="#e3a33d" transform="rotate(-24 44 78)" />
+      <ellipse cx="78" cy="80" rx="9" ry="12" fill="#e3a33d" transform="rotate(22 78 80)" />
+      <ellipse cx="30" cy="52" rx="8" ry="11" fill="#f2d89e" transform="rotate(-38 30 52)" />
+      <ellipse cx="91" cy="56" rx="8" ry="11" fill="#f2d89e" transform="rotate(34 91 56)" />
+    </svg>
+  );
+}
