@@ -1,10 +1,10 @@
 import type { Product } from './store';
 
 export function customPrice(kg: number, products: Product[]): number | null {
-  if (!Number.isFinite(kg) || kg < 0.5 || kg > 10000 || kg % 0.5 !== 0) return null;
+  if (!Number.isFinite(kg) || kg < 10 || kg > 10000 || kg % 0.5 !== 0) return null;
   const reference = products.find(p => p.slug === 'tub-4-5kg') ?? products.find(p => p.slug === 'tub-2-25kg');
   if (!reference || !Number.isFinite(Number(reference.price)) || Number(reference.price) <= 0) return null;
-  const grams = reference.slug === 'tub-4-5kg' ? 4500 : 2250;
+  const grams = reference.slug === 'tub-4-5kg' ? 5000 : 2500;
   return Math.round(Math.round(Number(reference.price) * 100) * (kg * 1000) / grams) / 100;
 }
 

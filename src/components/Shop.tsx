@@ -25,7 +25,7 @@ export function Shop({ products }: { products: Product[] }) {
 
   const handleAddCustom = (product: Product) => {
     const kg = Number(customKg);
-    if (!Number.isFinite(kg) || kg <= 0) return;
+    if (!Number.isFinite(kg) || kg < 10) return;
     const customProduct = pricedCustomProduct(product, kg, products);
     if (!customProduct) return;
     add(customProduct, kg);
@@ -43,8 +43,8 @@ export function Shop({ products }: { products: Product[] }) {
           Good things come by the tub.
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-balance text-cocoa-600">
-          Two ready-to-order tubs, or tell us exactly how many kilograms you need and we
-          will calculate the price automatically as you choose your kilograms.
+          Two ready-to-order tubs, or choose a custom order of 10 kg or more. We
+          calculate the price automatically as you choose your kilograms.
         </p>
       </div>
 
@@ -109,7 +109,7 @@ export function Shop({ products }: { products: Product[] }) {
                       <input
                         id={`custom-kg-${product.id}`}
                         type="number"
-                        min={0.5}
+                        min={10}
                         max={10000}
                         step={0.5}
                         value={customKg}
@@ -128,7 +128,7 @@ export function Shop({ products }: { products: Product[] }) {
                     </div>
                     <p className="mt-3 font-display text-2xl text-cocoa-900" aria-live="polite">{amount === null ? 'Choose your kilograms' : formatPrice(amount)}</p>
                     <p className="mt-2 text-xs text-cocoa-500">
-                      {product.stock < 1 ? 'Custom orders are temporarily unavailable.' : 'Price scales with our tub price. Choose 0.5 kg increments; delivery is quoted separately.'}
+                      {product.stock < 1 ? 'Custom orders are temporarily unavailable.' : 'Custom orders start at 10 kg, in 0.5 kg increments. Delivery is quoted separately.'}
                     </p>
                   </div>
                 ) : (

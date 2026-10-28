@@ -1,5 +1,5 @@
 -- Version aligned with the CreamyNut Supabase migration history.
--- Price new custom orders from the current 4.5 kg tub price; keep legacy quotes intact.
+-- Price new custom orders from the current 5 kg tub price; keep legacy quotes intact.
 CREATE OR REPLACE FUNCTION public.admin_set_order_manual_amount(p_order_id uuid, p_amount numeric)
  RETURNS orders
  LANGUAGE plpgsql

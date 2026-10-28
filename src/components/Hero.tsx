@@ -15,7 +15,7 @@ export function Hero({ product }: { product?: Product }) {
             <a href="#shop" className="inline-flex items-center gap-3 rounded-full bg-cocoa-950 px-7 py-4 text-sm font-bold text-white transition hover:bg-cocoa-800">Find your favourite tub <ArrowRight className="h-4 w-4" /></a>
             <a href="#story" className="text-sm font-bold text-cocoa-700 underline decoration-cocoa-300 underline-offset-8">Meet CreamyNut</a>
           </div>
-          <p className="mt-8 text-xs font-semibold uppercase tracking-widest text-cocoa-500">2.25 kg · 4.5 kg · Custom orders</p>
+          <p className="mt-8 text-xs font-semibold uppercase tracking-widest text-cocoa-500">2.5 kg · 5 kg · Custom orders from 10 kg</p>
         </div>
         <div className="relative">
           <div className="relative aspect-[4/5] max-h-[560px] overflow-hidden rounded-t-[10rem] rounded-b-3xl bg-cocoa-900 sm:aspect-square">

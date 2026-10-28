@@ -4,7 +4,7 @@ const questions = [
   ['When will my order be ready?', 'Please allow 7 days for preparation before dispatch. Delivery travel time follows dispatch and depends on your location.'],
   ['How much is delivery?', 'We quote delivery from our base to your address. There is no flat delivery fee. We confirm the quote with you before payment.'],
   ['When do I pay?', 'Payment is on delivery. Your order confirmation shows the product amount; your private tracking page shows the delivery fee after it is confirmed.'],
-  ['How are custom kilograms priced?', 'Custom quantities use the same rate as our tubs: kilograms × the current 4.5 kg tub price ÷ 4.5, rounded to two decimal places. Choose quantities in 0.5 kg increments.'],
+  ['What is the minimum custom order?', 'Custom orders are available from 10 kg, in 0.5 kg increments. Pricing uses the same rate as our tubs, calculated from the current 5 kg tub price.'],
   ['How can I check my order?', 'Use the private tracking link from your confirmation or receipt email. Keep the link private and contact us with your order number if you need help.'],
 ];
 
