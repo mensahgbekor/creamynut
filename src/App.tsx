@@ -14,6 +14,7 @@ import { Checkout } from '@/components/Checkout';
 import { OwnerDashboard } from '@/components/OwnerDashboard';
 import { TrackOrder } from '@/components/TrackOrder';
 import { ToastStack } from '@/components/Toast';
+import { ShoppingChat } from '@/components/ShoppingChat';
 import { CustomerInfo } from '@/components/CustomerInfo';
 
 function Storefront() {
@@ -98,6 +99,7 @@ function Storefront() {
       </main>
       <Footer />
       <CartDrawer />
+      {page !== 'owner' && <ShoppingChat products={products} />}
       <ToastStack toasts={cart.toasts} onDismiss={cart.dismissToast} />
     </div>
   );
