@@ -1,0 +1,16 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/store';
+export function CustomerReview({ onBack }: { onBack: () => void }) {
+ const [token,setToken]=useState(''); const [rating,setRating]=useState(0); const [comment,setComment]=useState(''); const [busy,setBusy]=useState(false); const [error,setError]=useState(''); const [done,setDone]=useState(false);
+ async function submit(e: React.FormEvent) { e.preventDefault(); setBusy(true); setError(''); try {
+ let value=token.trim(); if(value.includes('token=')) value=value.split('token=')[1].split('&')[0];
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) throw new Error('Enter the private tracking link or token from your order confirmation.');
+ const {error}=await supabase.rpc('submit_customer_review',{p_token:value,p_rating:rating,p_comment:comment.trim()}); if(error) throw error; setDone(true);
+ } catch(e) { setError(e instanceof Error ? e.message : (e as {message?:string}).message || 'Could not submit. Please try again.'); } finally {setBusy(false);} }
+ return <div className="overflow-y-auto p-5"><button className="font-bold underline" onClick={onBack}>Back to chat</button><h2 className="my-4 font-display text-2xl">Rate your experience</h2>{done ? <p role="status">Thank you! Your rating and review have been saved.</p> : <form onSubmit={submit} className="space-y-4"><p className="text-sm">One review per delivered order. Your feedback is shared privately with the CreamyNut team.</p><label className="block text-sm">Private tracking link or token<input required value={token} onChange={e=>setToken(e.target.value)} className="mt-1 w-full rounded-xl border p-3" /></label><fieldset><legend>Your rating</legend><div className="flex gap-2">{[1,2,3,4,5].map(n=><button key={n} type="button" aria-label={`${n} star${n===1?'':'s'}`} aria-pressed={rating===n} onClick={()=>setRating(n)} className={`text-3xl ${n<=rating?'text-amber-600':'text-gray-400'}`}>★</button>)}</div></fieldset><label className="block text-sm">Your review<textarea required maxLength={2000} value={comment} onChange={e=>setComment(e.target.value)} className="mt-1 w-full rounded-xl border p-3" rows={4}/></label>{error&&<p role="alert" className="text-sm text-red-700">{error}</p>}<button disabled={busy||!rating||!comment.trim()} className="rounded-full bg-cocoa-900 px-5 py-3 text-white disabled:opacity-50">{busy?'Saving…':'Submit review'}</button></form>}</div>;
+}
+export function OwnerReviews() {
+ const [rows,setRows]=useState<{order_number:string;rating:number;comment:string;created_at:string}[]>([]); const [message,setMessage]=useState('Loading reviews…');
+ useEffect(()=>{supabase.rpc('admin_list_customer_reviews').then(({data,error})=>{if(error)setMessage('Could not load reviews.');else{setRows(data||[]);setMessage(data?.length?'':'No customer reviews yet.');}});},[]);
+ return <section className="space-y-3"><h2 className="font-display text-2xl">Customer reviews</h2><p role="status">{message}</p>{rows.map(r=><article key={r.order_number} className="rounded-xl border bg-white p-4"><p className="font-bold">{r.order_number} · {r.rating}/5 stars</p><p className="whitespace-pre-wrap">{r.comment}</p><p className="text-xs">{new Date(r.created_at).toLocaleDateString()}</p></article>)}</section>;
+}

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { supabase, formatPrice, adminDeleteOrder, adminRestoreOrder, adminListOrders, adminListOrderActivity, adminUpdateOrderStatus, adminSetOrderNote, adminSetOrderManualAmount, adminSetOrderDeliveryFee, sendOrderReceipt, ORDER_STATUS_OPTIONS } from '@/lib/store';
 import type { AdminOrder, OrderActivity, OrderStatus } from '@/lib/store';
+import { OwnerReviews } from './CustomerReview';
 import { ProductManager } from '@/components/ProductManager';
 import { adminRecordPayment } from '@/lib/store';
 import { useCart } from '@/lib/cart-context';
@@ -103,7 +104,7 @@ export function OwnerDashboard({ onBack }: { onBack: () => void }) {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [newOrderCount, setNewOrderCount] = useState(0);
   const [savingPaymentId, setSavingPaymentId] = useState<string | null>(null);
-  const [activePage, setActivePage] = useState<'orders' | 'analytics' | 'products' | 'archived' | 'activity'>('orders');
+  const [activePage, setActivePage] = useState<'orders' | 'analytics' | 'products' | 'archived' | 'activity' | 'reviews'>('orders');
   const [analyticsRange, setAnalyticsRange] = useState<0 | 7 | 30>(0);
   const [unlocked, setUnlocked] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
@@ -442,7 +443,7 @@ export function OwnerDashboard({ onBack }: { onBack: () => void }) {
           <p className="eyebrow mb-3">CREAMYNUT · BACKOFFICE</p>
           <h1 className="flex items-center gap-3 font-display text-3xl font-extrabold text-cocoa-900">
             {activePage === 'orders' ? <FileSpreadsheet className="h-7 w-7 text-leaf-600" /> : activePage === 'analytics' ? <BarChart3 className="h-7 w-7 text-leaf-600" /> : activePage === 'archived' ? <Archive className="h-7 w-7 text-leaf-600" /> : activePage === 'activity' ? <ActivityIcon className="h-7 w-7 text-leaf-600" /> : <Boxes className="h-7 w-7 text-leaf-600" />}
-            {activePage === 'orders' ? 'Orders' : activePage === 'analytics' ? 'Analytics' : activePage === 'archived' ? 'Archived orders' : activePage === 'activity' ? 'Activity' : 'Products'}
+            {activePage === 'reviews' ? 'Customer reviews' : activePage === 'orders' ? 'Orders' : activePage === 'analytics' ? 'Analytics' : activePage === 'archived' ? 'Archived orders' : activePage === 'activity' ? 'Activity' : 'Products'}
           </h1>
           <p className="mt-1 text-sm text-cocoa-600">{activePage === 'products' ? 'Manage prices, stock, and images' : activePage === 'activity' ? 'Recent order events and backoffice changes' : `${orders.length} total order${orders.length === 1 ? '' : 's'}${activePage === 'orders' || activePage === 'archived' ? ` · ${filtered.length} shown` : ''}`}</p>
         </div>
@@ -468,13 +469,14 @@ export function OwnerDashboard({ onBack }: { onBack: () => void }) {
         <button onClick={() => setActivePage('activity')} className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors ${activePage === 'activity' ? 'bg-white text-cocoa-900 shadow-sm' : 'text-cocoa-600 hover:text-cocoa-900'}`}>
           <ActivityIcon className="h-4 w-4" /> Activity
         </button>
+        <button onClick={() => setActivePage('reviews')} className="rounded-full px-4 py-2 text-sm font-bold">Reviews</button>
         <button onClick={() => setActivePage('products')} className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors ${activePage === 'products' ? 'bg-white text-cocoa-900 shadow-sm' : 'text-cocoa-600 hover:text-cocoa-900'}`}><Boxes className="h-4 w-4" /> Products</button>
         <button onClick={() => setActivePage('archived')} className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors ${activePage === 'archived' ? 'bg-white text-cocoa-900 shadow-sm' : 'text-cocoa-600 hover:text-cocoa-900'}`}><Archive className="h-4 w-4" /> Archived</button>
       </nav>
 
       {loadError && <div className="mt-6 rounded-2xl bg-chili-500/10 px-5 py-4 text-sm font-semibold text-chili-600" role="alert">{loadError} <button onClick={loadOrders} className="ml-2 underline">Retry</button></div>}
       {actionError && <div className="mt-6 rounded-2xl bg-chili-500/10 px-5 py-4 text-sm font-semibold text-chili-600" role="alert">{actionError} <button onClick={() => setActionError(null)} className="ml-2 underline">Dismiss</button></div>}
-      {activePage === 'products' ? <ProductManager /> : activePage === 'activity' ? (
+      {activePage === 'reviews' ? <OwnerReviews /> : activePage === 'products' ? <ProductManager /> : activePage === 'activity' ? (
         activityLoading ? <div className="flex items-center gap-3 py-16 text-cocoa-600"><Loader2 className="h-5 w-5 animate-spin" />Loading activity…</div> : activityError ? <div className="mt-6 rounded-2xl bg-chili-500/10 px-5 py-4 text-sm font-semibold text-chili-600" role="alert">{activityError} <button onClick={loadActivity} className="ml-2 underline">Retry</button></div> : activities.length === 0 ? (
           <div className="mt-8 rounded-3xl bg-white p-12 text-center shadow-sm ring-1 ring-cocoa-100">
             <ActivityIcon className="mx-auto h-12 w-12 text-cocoa-300" />
