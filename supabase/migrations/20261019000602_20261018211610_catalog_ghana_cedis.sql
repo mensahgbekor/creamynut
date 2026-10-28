@@ -1,4 +1,5 @@
 /*
+ * Version aligned with the CreamyNut Supabase migration history.
 # Switch catalog to Ghana cedi weight-based tubs
 
 1. Changes

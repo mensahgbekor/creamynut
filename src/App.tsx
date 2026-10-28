@@ -1,40 +1,51 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle, Loader2 } from 'lucide-react';
-import { CartProvider, useCart } from '@/lib/cart';
+import { CartProvider } from '@/lib/cart';
+import { useCart } from '@/lib/cart-context';
 import { fetchProducts } from '@/lib/store';
 import type { Product } from '@/lib/store';
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
 import { Shop } from '@/components/Shop';
-import { Story, Reviews } from '@/components/Story';
+import { Story } from '@/components/Story';
 import { Footer } from '@/components/Footer';
 import { CartDrawer } from '@/components/CartDrawer';
 import { Checkout } from '@/components/Checkout';
 import { OwnerDashboard } from '@/components/OwnerDashboard';
+import { TrackOrder } from '@/components/TrackOrder';
 import { ToastStack } from '@/components/Toast';
+import { CustomerInfo } from '@/components/CustomerInfo';
 
 function Storefront() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [page, setPage] = useState<'home' | 'checkout' | 'owner'>('home');
+  const [page, setPage] = useState<'home' | 'checkout' | 'owner' | 'track'>('home');
   const cart = useCart();
+  const { syncProducts } = cart;
 
   useEffect(() => {
     fetchProducts()
-      .then(setProducts)
+      .then((loaded) => { setProducts(loaded); syncProducts(loaded); })
       .catch(() => setLoadError('We couldn\u2019t load the shop right now. Please refresh the page.'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [syncProducts]);
 
   useEffect(() => {
     const checkHash = () => {
-      if (window.location.hash === '#owner') {
+      if (window.location.hash === '#owner' || window.location.hash.startsWith('#owner&') || window.location.hash.startsWith('#owner?')) {
         setPage('owner');
         window.scrollTo({ top: 0 });
       } else if (window.location.hash === '#checkout') {
         setPage('checkout');
         window.scrollTo({ top: 0 });
+      } else if (window.location.hash === '#track' || window.location.hash.startsWith('#track?')) {
+        setPage('track');
+        window.scrollTo({ top: 0 });
+      } else {
+        setPage('home');
+        const target = window.location.hash.slice(1);
+        if (target) window.setTimeout(() => document.getElementById(target)?.scrollIntoView(), 0);
       }
     };
     checkHash();
@@ -52,7 +63,7 @@ function Storefront() {
       <main>
         {page === 'home' ? (
           <>
-            <Hero />
+            <Hero product={products.find((product) => product.slug === 'tub-4-5kg')} />
             {loading ? (
               <div className="flex items-center justify-center gap-3 py-32 text-cocoa-600">
                 <Loader2 className="h-6 w-6 animate-spin text-peanut-500" />
@@ -73,12 +84,14 @@ function Storefront() {
               <Shop products={products} />
             )}
             <Story />
-            <Reviews />
+            <CustomerInfo />
           </>
         ) : page === 'checkout' ? (
           <div className="pt-20 sm:pt-24">
             <Checkout onBack={() => { setPage('home'); window.location.hash = ''; }} />
           </div>
+        ) : page === 'track' ? (
+          <TrackOrder onBack={() => { setPage('home'); window.location.hash = ''; }} />
         ) : (
           <OwnerDashboard onBack={() => { setPage('home'); window.location.hash = ''; }} />
         )}

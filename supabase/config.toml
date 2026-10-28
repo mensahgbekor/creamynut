@@ -1,4 +1,4 @@
-project_id = "creamynut-shop"
+project_id = "noblueteexqplkoxwwgp"
 
 [functions.receipt-email]
 verify_jwt = true

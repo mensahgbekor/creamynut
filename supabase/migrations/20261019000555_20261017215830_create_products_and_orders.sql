@@ -1,4 +1,5 @@
 /*
+ * Version aligned with the CreamyNut Supabase migration history.
 # Create products and orders tables for Creamy Nut ecommerce
 
 1. New Tables

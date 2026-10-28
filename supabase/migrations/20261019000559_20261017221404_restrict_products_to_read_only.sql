@@ -1,4 +1,5 @@
 /*
+ * Version aligned with the CreamyNut Supabase migration history.
 # Tighten product table permissions (read-only storefront)
 
 1. Security changes

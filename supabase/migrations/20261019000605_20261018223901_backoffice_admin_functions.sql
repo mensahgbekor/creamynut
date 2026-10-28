@@ -1,4 +1,5 @@
 /*
+ * Version aligned with the CreamyNut Supabase migration history.
 # Backoffice admin functions + tighter order access
 
 1. New table

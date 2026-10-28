@@ -1,3 +1,4 @@
+-- Version aligned with the CreamyNut Supabase migration history.
 -- Postgres grants EXECUTE on functions to PUBLIC by default. Revoke that so the
 -- admin functions are only callable by the service role (which bypasses grants),
 -- then re-grant EXECUTE only on the customer-facing checkout function.

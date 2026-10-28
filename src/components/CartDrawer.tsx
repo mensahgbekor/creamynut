@@ -1,11 +1,31 @@
 import { X, Trash2, Plus, Minus, ShoppingBag, Truck } from 'lucide-react';
-import { useCart } from '@/lib/cart';
-import { FREE_SHIPPING_THRESHOLD, shippingFor, formatPrice } from '@/lib/store';
+import { cartLineKey, useCart } from '@/lib/cart-context';
+import { formatPrice } from '@/lib/store';
+import { useEffect, useRef } from 'react';
 
 export function CartDrawer() {
   const { lines, subtotal, isOpen, closeCart, setQuantity, remove } = useCart();
-  const shipping = shippingFor(subtotal);
-  const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
+  const dialog = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!isOpen) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const overflow = document.body.style.overflow;
+    const background = [...document.querySelectorAll<HTMLElement>('header, main, footer')].map(el => ({ el, inert: el.inert }));
+    background.forEach(({ el }) => { el.inert = true; });
+    document.body.style.overflow = 'hidden';
+    const controls = () => [...(dialog.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex="0"]') ?? [])];
+    controls()[0]?.focus();
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { event.preventDefault(); closeCart(); }
+      if (event.key !== 'Tab') return;
+      const elements = controls(); const first = elements[0]; const last = elements[elements.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !dialog.current?.contains(document.activeElement))) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && (document.activeElement === last || !dialog.current?.contains(document.activeElement))) { event.preventDefault(); first?.focus(); }
+    };
+    document.addEventListener('keydown', keydown);
+    return () => { document.removeEventListener('keydown', keydown); document.body.style.overflow = overflow; background.forEach(({ el, inert }) => { el.inert = inert; }); if (previous?.isConnected) previous.focus(); };
+  }, [isOpen, closeCart]);
+  if (!isOpen) return null;
 
   return (
     <div
@@ -19,10 +39,12 @@ export function CartDrawer() {
         onClick={closeCart}
       />
       <aside
+        ref={dialog}
         className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-cream-50 shadow-warm-lg transition-transform duration-300 ease-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         role="dialog"
+        aria-modal="true"
         aria-label="Shopping cart"
       >
         <div className="flex items-center justify-between border-b border-cocoa-100 bg-white px-5 py-4">
@@ -60,23 +82,9 @@ export function CartDrawer() {
         ) : (
           <>
             <div className="border-b border-cocoa-100 bg-white px-5 py-3">
-              <div className="flex items-center gap-2 text-xs font-semibold text-cocoa-700">
-                <Truck className="h-4 w-4 text-leaf-600" />
-                {shipping === 0 ? (
-                  <span className="text-leaf-600">You've unlocked free shipping!</span>
-                ) : (
-                  <span>
-                    {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} away from free shipping
-                  </span>
-                )}
-              </div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-cocoa-100">
-                <div
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    shipping === 0 ? 'bg-leaf-500' : 'bg-peanut-500'
-                  }`}
-                  style={{ width: `${progress}%` }}
-                />
+              <div className="flex items-start gap-2 text-xs font-semibold text-cocoa-700">
+                <Truck className="mt-0.5 h-4 w-4 shrink-0 text-leaf-600" />
+                <span>Delivery is quoted separately based on your location and confirmed before payment.</span>
               </div>
             </div>
 
@@ -84,7 +92,7 @@ export function CartDrawer() {
               <ul className="space-y-4">
                 {lines.map((line) => (
                   <li
-                    key={line.product.id}
+                    key={cartLineKey(line)}
                     className="flex gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-cocoa-100"
                   >
                     <img
@@ -98,7 +106,7 @@ export function CartDrawer() {
                           {line.product.name}
                         </p>
                         <button
-                          onClick={() => remove(line.product.id)}
+                          onClick={() => remove(cartLineKey(line))}
                           className="shrink-0 rounded-full p-1 text-cocoa-400 transition-colors hover:bg-chili-500/10 hover:text-chili-500"
                           aria-label={`Remove ${line.product.name}`}
                         >
@@ -106,11 +114,11 @@ export function CartDrawer() {
                         </button>
                       </div>
                       <p className="text-xs text-cocoa-500">{line.product.weight}</p>
-                      <div className="mt-auto flex items-center justify-between pt-2">
+                      <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2">
                         <div className="flex items-center gap-1 rounded-full border border-cocoa-200 bg-cream-50">
                           <button
-                            onClick={() => setQuantity(line.product.id, line.quantity - 1)}
-                            className="flex h-7 w-7 items-center justify-center rounded-full text-cocoa-700 transition-colors hover:bg-cocoa-200"
+                            onClick={() => setQuantity(cartLineKey(line), line.quantity - 1)}
+                            className="flex h-11 w-11 items-center justify-center rounded-full text-cocoa-700 transition-colors hover:bg-cocoa-200"
                             aria-label="Decrease quantity"
                           >
                             <Minus className="h-3.5 w-3.5" />
@@ -119,8 +127,8 @@ export function CartDrawer() {
                             {line.quantity}
                           </span>
                           <button
-                            onClick={() => setQuantity(line.product.id, line.quantity + 1)}
-                            className="flex h-7 w-7 items-center justify-center rounded-full text-cocoa-700 transition-colors hover:bg-cocoa-200 disabled:opacity-40"
+                            onClick={() => setQuantity(cartLineKey(line), line.quantity + 1)}
+                            className="flex h-11 w-11 items-center justify-center rounded-full text-cocoa-700 transition-colors hover:bg-cocoa-200 disabled:opacity-40"
                             disabled={line.quantity >= line.product.stock}
                             aria-label="Increase quantity"
                           >
@@ -144,14 +152,12 @@ export function CartDrawer() {
                   <span className="font-semibold text-cocoa-900">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-cocoa-600">
-                  <span>Shipping</span>
-                  <span className="font-semibold text-cocoa-900">
-                    {shipping === 0 ? 'Free' : formatPrice(shipping)}
-                  </span>
+                  <span>Delivery fee</span>
+                  <span className="font-semibold text-cocoa-900">To be confirmed</span>
                 </div>
                 <div className="flex justify-between border-t border-dashed border-cocoa-200 pt-2 text-base font-extrabold text-cocoa-900">
-                  <span>Total</span>
-                  <span>{formatPrice(subtotal + shipping)}</span>
+                  <span>Product total</span>
+                  <span>{formatPrice(subtotal)}</span>
                 </div>
               </div>
               <a

@@ -1,4 +1,5 @@
 /*
+ * Version aligned with the CreamyNut Supabase migration history.
 # Seed Creamy Nut product catalog
 
 1. Data

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Menu, ShoppingBag, X } from 'lucide-react';
 import { BrandMark } from '@/components/BrandMark';
-import { useCart } from '@/lib/cart';
+import { useCart } from '@/lib/cart-context';
 
 const NAV_LINKS = [
   { label: 'Shop', href: '#shop' },
   { label: 'Our Story', href: '#story' },
-  { label: 'Reviews', href: '#reviews' },
+  { label: 'Track order', href: '#track' },
+  { label: 'Help', href: '#help' },
 ];
 
 export function Header() {
@@ -26,7 +27,7 @@ export function Header() {
       className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${
         scrolled
           ? 'bg-cocoa-950/95 shadow-warm backdrop-blur'
-          : 'bg-gradient-to-b from-cocoa-950/80 to-transparent'
+          : 'bg-cocoa-950'
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6 lg:px-8">
@@ -67,6 +68,7 @@ export function Header() {
             className="flex h-10 w-10 items-center justify-center rounded-full text-cream-100 transition-colors hover:bg-white/10 md:hidden"
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="Toggle menu"
+            aria-expanded={menuOpen}
           >
             {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>

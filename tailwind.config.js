@@ -51,8 +51,8 @@ export default {
         },
       },
       fontFamily: {
-        display: ['"Baloo 2"', 'cursive'],
-        sans: ['"Nunito Sans"', 'sans-serif'],
+        display: ['"DM Serif Display"', 'Georgia', 'serif'],
+        sans: ['"DM Sans"', 'sans-serif'],
       },
       boxShadow: {
         warm: '0 10px 40px -12px rgba(51, 36, 26, 0.25)',

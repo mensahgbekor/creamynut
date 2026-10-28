@@ -46,3 +46,20 @@
 .animate-fade-up {
   animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+@layer base {
+  ::selection { background: #f2d89e; color: #221810; }
+  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+  :focus-visible { outline: 2px solid #a1541b; outline-offset: 4px; }
+  h1, h2, h3 { font-synthesis: none; }
+}
+@layer components {
+  .eyebrow { @apply text-xs font-bold uppercase tracking-[0.2em] text-peanut-700; }
+  .backoffice .font-display { font-family: 'DM Sans', sans-serif; letter-spacing: -0.025em; }
+  .backoffice-nav button { @apply rounded-xl px-4 py-3; }
+  .backoffice input, .backoffice select, .backoffice textarea { @apply transition-shadow focus:ring-2 focus:ring-peanut-200; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}

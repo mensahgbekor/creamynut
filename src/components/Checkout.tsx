@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import {
   ArrowLeft,
@@ -10,7 +10,7 @@ import {
   ShieldCheck,
   Truck,
 } from 'lucide-react';
-import { useCart } from '@/lib/cart';
+import { cartLineKey, useCart } from '@/lib/cart-context';
 import { placeOrder, shippingFor, formatPrice } from '@/lib/store';
 import type { Order } from '@/lib/store';
 
@@ -29,19 +29,19 @@ const EMPTY_FORM: FormState = {
   phone: '',
   address: '',
   city: '',
-  country: '',
+  country: 'Ghana',
 };
 
-const FIELDS: { name: keyof FormState; label: string; type: string; placeholder: string; span?: boolean }[] = [
-  { name: 'customer_name', label: 'Full name', type: 'text', placeholder: 'Ada Lovelace' },
-  { name: 'email', label: 'Email', type: 'email', placeholder: 'you@example.com' },
-  { name: 'phone', label: 'Phone', type: 'tel', placeholder: '+1 555 000 1234' },
-  { name: 'city', label: 'City', type: 'text', placeholder: 'Anytown' },
-  { name: 'address', label: 'Street address', type: 'text', placeholder: '123 Peanut Lane', span: true },
-  { name: 'country', label: 'Country', type: 'text', placeholder: 'United States', span: true },
+const FIELDS: { name: keyof FormState; label: string; type: string; placeholder: string; autoComplete: string; maxLength: number; span?: boolean }[] = [
+  { name: 'customer_name', label: 'Full name', type: 'text', placeholder: 'Your full name', autoComplete: 'name', maxLength: 200 },
+  { name: 'email', label: 'Email', type: 'email', placeholder: 'you@example.com', autoComplete: 'email', maxLength: 254 },
+  { name: 'phone', label: 'Phone', type: 'tel', placeholder: '+233 24 000 0000', autoComplete: 'tel', maxLength: 32 },
+  { name: 'city', label: 'City or town', type: 'text', placeholder: 'Accra', autoComplete: 'address-level2', maxLength: 200 },
+  { name: 'address', label: 'Delivery address', type: 'text', placeholder: 'Street, area and landmark', autoComplete: 'street-address', maxLength: 1000, span: true },
 ];
 
 function Confirmation({ order, onContinue }: { order: Order; onContinue: () => void }) {
+  const hasCustom = order.items.some((item) => item.requested_kg && !item.custom_priced);
   return (
     <div className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6">
       <div className="animate-fade-up rounded-3xl bg-white p-8 shadow-warm ring-1 ring-cocoa-100 sm:p-12">
@@ -54,7 +54,7 @@ function Confirmation({ order, onContinue }: { order: Order; onContinue: () => v
         <p className="mt-3 text-cocoa-600">
           Thanks, {order.customer_name.split(' ')[0]}! Your order{' '}
           <span className="font-extrabold text-cocoa-900">{order.order_number}</span> is being
-          prepared. We&rsquo;ve emailed the receipt to{' '}
+          prepared. We&rsquo;ll contact you at{' '}
           <span className="font-semibold text-cocoa-900">{order.email}</span>.
         </p>
 
@@ -65,9 +65,9 @@ function Confirmation({ order, onContinue }: { order: Order; onContinue: () => v
           </div>
           <ul className="mt-4 space-y-2.5">
             {order.items.map((item) => (
-              <li key={item.product_id} className="flex justify-between text-sm">
+              <li key={`${item.product_id}:${item.requested_kg ?? ''}`} className="flex justify-between text-sm">
                 <span className="text-cocoa-700">
-                  {item.quantity} × {item.name}
+                  {item.quantity} × {item.name}{item.requested_kg ? ` (${item.requested_kg} kg requested)` : ''}
                 </span>
                 <span className="font-bold text-cocoa-900">
                   {formatPrice(item.price * item.quantity)}
@@ -77,20 +77,23 @@ function Confirmation({ order, onContinue }: { order: Order; onContinue: () => v
           </ul>
           <div className="mt-4 space-y-1.5 border-t border-dashed border-cocoa-200 pt-3 text-sm">
             <div className="flex justify-between text-cocoa-600">
-              <span>Shipping</span>
-              <span>{order.shipping === 0 ? 'Free' : formatPrice(Number(order.shipping))}</span>
+              <span>Delivery fee</span>
+              <span>{order.delivery_fee_confirmed ? (order.shipping === 0 ? 'No fee' : formatPrice(Number(order.shipping))) : 'To be confirmed'}</span>
             </div>
             <div className="flex justify-between text-base font-extrabold text-cocoa-900">
-              <span>Total paid</span>
+              <span>{order.delivery_fee_confirmed ? (hasCustom ? 'Priced items total' : 'Order total') : (hasCustom ? 'Priced items subtotal' : 'Product total')}</span>
               <span>{formatPrice(Number(order.total))}</span>
             </div>
+            {hasCustom && <p className="pt-2 text-xs font-semibold text-cocoa-600">Custom kilograms will be priced with you separately before payment.</p>}
           </div>
         </div>
 
         <div className="mt-6 flex items-center justify-center gap-2 text-xs font-semibold text-cocoa-500">
           <Truck className="h-4 w-4 text-leaf-600" />
-          Ships within 2 business days · tracking to follow by email
+          Delivery is priced from your location and confirmed with you before payment. Payment is due on delivery; please allow 7 days for preparation before dispatch.
         </div>
+        <a href={`https://wa.me/233202001147?text=${encodeURIComponent(`Hi CreamyNut, I would like to confirm delivery for order ${order.order_number}.`)}`} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-leaf-700 underline underline-offset-2">Confirm delivery on WhatsApp</a>
+        {order.receipt_token && <div className="mt-5 flex flex-wrap items-center justify-center gap-4 text-sm font-bold text-peanut-700"><a href={`#track?token=${order.receipt_token}`} className="underline">View your private tracking page</a><button type="button" onClick={() => navigator.clipboard.writeText(`${window.location.origin}/#track?token=${order.receipt_token}`)} className="underline">Copy tracking link</button></div>}
 
         <button
           onClick={onContinue}
@@ -111,7 +114,10 @@ export function Checkout({ onBack }: { onBack: () => void }) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
 
-  const shipping = shippingFor(subtotal);
+  const checkoutAttempt = useRef<{ fingerprint: string; id: string } | null>(null);
+  const submittingRef = useRef(false);
+  const shipping = shippingFor();
+
 
   if (placedOrder) {
     return <Confirmation order={placedOrder} onContinue={() => { setPlacedOrder(null); onBack(); }} />;
@@ -121,7 +127,7 @@ export function Checkout({ onBack }: { onBack: () => void }) {
     const next: Partial<Record<keyof FormState, string>> = {};
     if (form.customer_name.trim().length < 2) next.customer_name = 'Please enter your name';
     if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) next.email = 'Enter a valid email address';
-    if (form.phone.trim().length < 7) next.phone = 'Enter a valid phone number';
+    if (!/^[+\d\s().-]+$/.test(form.phone) || !/^\d{8,15}$/.test(form.phone.replace(/\D/g, ''))) next.phone = 'Enter a valid phone number';
     if (form.address.trim().length < 5) next.address = 'Enter your street address';
     if (form.city.trim().length < 2) next.city = 'Enter your city';
     if (form.country.trim().length < 2) next.country = 'Enter your country';
@@ -131,10 +137,19 @@ export function Checkout({ onBack }: { onBack: () => void }) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
     setSubmitError(null);
     if (!validate()) return;
+    submittingRef.current = true;
     setSubmitting(true);
     try {
+      const fingerprint = JSON.stringify([form, lines.map(l => [l.product.id, l.quantity, l.requestedKg, l.product.price])]);
+      if (!checkoutAttempt.current || checkoutAttempt.current.fingerprint !== fingerprint) {
+        let previous: { fingerprint: string; id: string } | null = null;
+        try { previous = JSON.parse(sessionStorage.getItem('creamynut-checkout-attempt') ?? 'null'); } catch { /* Memory fallback. */ }
+        checkoutAttempt.current = previous?.fingerprint === fingerprint ? previous : { fingerprint, id: crypto.randomUUID() };
+        try { sessionStorage.setItem('creamynut-checkout-attempt', JSON.stringify(checkoutAttempt.current)); } catch { /* Memory fallback. */ }
+      }
       const order = await placeOrder(
         {
           customer_name: form.customer_name.trim(),
@@ -149,10 +164,14 @@ export function Checkout({ onBack }: { onBack: () => void }) {
           name: l.product.name,
           quantity: l.quantity,
           price: l.product.price,
+          requested_kg: l.requestedKg,
         })),
         subtotal,
-        shipping
+        shipping,
+        checkoutAttempt.current.id
       );
+      try { sessionStorage.removeItem('creamynut-checkout-attempt'); } catch { /* Storage unavailable. */ }
+      checkoutAttempt.current = null;
       clear();
       setPlacedOrder(order);
     } catch (err) {
@@ -160,6 +179,7 @@ export function Checkout({ onBack }: { onBack: () => void }) {
         err instanceof Error ? err.message : 'Something went wrong placing your order. Please try again.'
       );
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   };
@@ -216,6 +236,12 @@ export function Checkout({ onBack }: { onBack: () => void }) {
                   </label>
                   <input
                     id={field.name}
+                    name={field.name}
+                    autoComplete={field.autoComplete}
+                    maxLength={field.maxLength}
+                    required
+                    aria-invalid={Boolean(errors[field.name])}
+                    aria-describedby={errors[field.name] ? `${field.name}-error` : undefined}
                     type={field.type}
                     value={form[field.name]}
                     onChange={(e) => setForm((f) => ({ ...f, [field.name]: e.target.value }))}
@@ -225,7 +251,7 @@ export function Checkout({ onBack }: { onBack: () => void }) {
                     }`}
                   />
                   {errors[field.name] && (
-                    <p className="mt-1.5 text-xs font-semibold text-chili-500">
+                    <p id={`${field.name}-error`} className="mt-1.5 text-xs font-semibold text-chili-500">
                       {errors[field.name]}
                     </p>
                   )}
@@ -240,13 +266,12 @@ export function Checkout({ onBack }: { onBack: () => void }) {
             <div className="mt-4 flex items-start gap-3 rounded-2xl bg-cream-100 p-4 text-sm text-cocoa-600">
               <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-leaf-600" />
               <p>
-                This demo store records your order for manual processing — no card is charged
-                here. Connect Stripe in one click when you&rsquo;re ready to take live payments.
+                Delivery cost is based on your location and will be confirmed with you before payment. Payment is due on delivery. Please allow 7 days for preparation before dispatch.
               </p>
             </div>
 
             {submitError && (
-              <p className="mt-5 rounded-xl bg-chili-500/10 px-4 py-3 text-sm font-semibold text-chili-600">
+              <p role="alert" className="mt-5 rounded-xl bg-chili-500/10 px-4 py-3 text-sm font-semibold text-chili-600">
                 {submitError}
               </p>
             )}
@@ -264,7 +289,7 @@ export function Checkout({ onBack }: { onBack: () => void }) {
               ) : (
                 <>
                   <Lock className="h-4 w-4" />
-                  Place order · {formatPrice(subtotal + shipping)}
+                  {`Place order · ${formatPrice(subtotal)} + delivery quote`}
                 </>
               )}
             </button>
@@ -274,7 +299,7 @@ export function Checkout({ onBack }: { onBack: () => void }) {
             <h2 className="font-display text-lg font-bold text-cocoa-900">Your order</h2>
             <ul className="mt-5 space-y-4">
               {lines.map((line) => (
-                <li key={line.product.id} className="flex items-center gap-3">
+                <li key={cartLineKey(line)} className="flex items-center gap-3">
                   <div className="relative shrink-0">
                     <img
                       src={line.product.image_url}
@@ -303,15 +328,15 @@ export function Checkout({ onBack }: { onBack: () => void }) {
                 <span className="font-semibold text-cocoa-900">{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between text-cocoa-600">
-                <span>Shipping</span>
-                <span className="font-semibold text-cocoa-900">
-                  {shipping === 0 ? 'Free' : formatPrice(shipping)}
-                </span>
+                <span>Delivery fee</span>
+                <span className="font-semibold text-cocoa-900">To be confirmed</span>
               </div>
               <div className="flex justify-between pt-1 text-base font-extrabold text-cocoa-900">
-                <span>Total</span>
-                <span>{formatPrice(subtotal + shipping)}</span>
+                <span>Product total</span>
+                <span>{formatPrice(subtotal)}</span>
               </div>
+              <p className="text-xs text-cocoa-600">We&rsquo;ll calculate delivery from your address and confirm the fee before payment.</p>
+              <p className="text-xs text-cocoa-600">Custom kilogram prices are included above. Delivery is quoted separately.</p>
             </div>
           </aside>
         </div>
