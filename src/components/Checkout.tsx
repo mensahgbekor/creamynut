@@ -106,7 +106,7 @@ function Confirmation({ order, onContinue }: { order: Order; onContinue: () => v
   );
 }
 
-export function Checkout({ onBack }: { onBack: () => void }) {
+export function Checkout({ onBack, embedded = false }: { onBack: () => void; embedded?: boolean }) {
   const { lines, subtotal, clear } = useCart();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
@@ -185,7 +185,7 @@ export function Checkout({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+    <div className={embedded ? "min-w-0 px-2 py-4" : "mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8"}>
       <button
         onClick={onBack}
         className="flex items-center gap-2 text-sm font-bold text-cocoa-600 transition-colors hover:text-peanut-600"
@@ -215,19 +215,19 @@ export function Checkout({ onBack }: { onBack: () => void }) {
           </button>
         </div>
       ) : (
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_400px]">
+        <div className={embedded ? "mt-5 grid min-w-0 grid-cols-1 gap-5" : "mt-8 grid gap-8 lg:grid-cols-[1fr_400px]"}>
           <form
             onSubmit={handleSubmit}
             noValidate
-            className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-cocoa-100 sm:p-8"
+            className={embedded ? "min-w-0 rounded-2xl bg-white p-4 ring-1 ring-cocoa-100" : "rounded-3xl bg-white p-6 shadow-sm ring-1 ring-cocoa-100 sm:p-8"}
           >
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-cocoa-900">
               <Truck className="h-5 w-5 text-peanut-600" />
               Delivery details
             </h2>
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className={embedded ? "mt-6 grid grid-cols-1 gap-4" : "mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2"}>
               {FIELDS.map((field) => (
-                <div key={field.name} className={field.span ? 'sm:col-span-2' : ''}>
+                <div key={field.name} className={!embedded && field.span ? 'sm:col-span-2' : 'min-w-0'}>
                   <label
                     htmlFor={field.name}
                     className="mb-1.5 block text-xs font-extrabold uppercase tracking-wide text-cocoa-600"
@@ -295,7 +295,7 @@ export function Checkout({ onBack }: { onBack: () => void }) {
             </button>
           </form>
 
-          <aside className="h-fit rounded-3xl bg-white p-6 shadow-sm ring-1 ring-cocoa-100 sm:sticky sm:top-24 sm:p-7">
+          <aside className={embedded ? "min-w-0 rounded-2xl bg-white p-4 ring-1 ring-cocoa-100" : "h-fit rounded-3xl bg-white p-6 shadow-sm ring-1 ring-cocoa-100 sm:sticky sm:top-24 sm:p-7"}>
             <h2 className="font-display text-lg font-bold text-cocoa-900">Your order</h2>
             <ul className="mt-5 space-y-4">
               {lines.map((line) => (
