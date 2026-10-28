@@ -23,8 +23,6 @@ export function ShoppingChat({ products }: { products: Product[] }) {
   const cart = useCart();
   async function send(e: React.FormEvent) {
     e.preventDefault(); if (!input.trim() || busy) return;
-    if (/reorder|order again/i.test(input)) {setService('reorder');setInput('');return;}
-    if (/change.*order|change.*address|change.*quantity/i.test(input)) {setService('change');setInput('');return;}
     if (/review|feedback|rate my|leave.*rating/i.test(input)) { setReviewing(true); setInput(''); return; }
     if (/track|order status|where.*order|token=|[0-9a-f]{8}-[0-9a-f]{4}-/i.test(input)) { setTracking(true); setInput(''); return; }
     const next: Message[] = [...messages, { role: 'user', text: input.trim() }];
@@ -53,8 +51,6 @@ export function ShoppingChat({ products }: { products: Product[] }) {
       {service ? <ChatOrderServices mode={service} onBack={() => setService(null)} onCheckout={() => {setService(null);setCheckout(true);}} /> : reviewing ? <CustomerReview onBack={() => setReviewing(false)} /> : tracking ? <div className="overflow-y-auto"><TrackOrder embedded onBack={() => setTracking(false)} /></div> : checkout ? <div className="min-h-0 overflow-y-auto overflow-x-hidden p-3"><Checkout embedded onBack={() => setCheckout(false)} /></div> : <>
       <div className="space-y-3 overflow-y-auto p-4" aria-live="polite">
         <button className="font-bold underline" onClick={() => setTracking(true)}>Track an existing order</button>
-        <button className="block font-bold underline" onClick={()=>setService('reorder')}>Order again</button>
-        <button className="block font-bold underline" onClick={()=>setService('change')}>Request an order change</button>
         <a className="block font-bold underline" target="_blank" rel="noopener noreferrer" href={`https://wa.me/233202001147?text=${encodeURIComponent('Hi CreamyNut, I need help. Here is my chat summary: '+messages.slice(-6).map(m=>`${m.role==='user'?'Customer':'Assistant'}: ${m.text}`).join(' | ').slice(0,2500))}`}>Talk to our team on WhatsApp</a>
         <button className="block font-bold underline" onClick={()=>setInput('Help me choose a bulk order for my shop or event. Ask about my quantity and needs.')}>Help with a bulk order</button>
         <button className="block font-bold underline" onClick={() => setReviewing(true)}>Leave a rating & review</button>
