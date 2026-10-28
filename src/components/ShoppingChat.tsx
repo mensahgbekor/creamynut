@@ -4,6 +4,7 @@ import { formatPrice } from '@/lib/store';
 import { useCart } from '@/lib/cart-context';
 import { pricedCustomProduct } from '@/lib/pricing';
 import { CustomerReview } from './CustomerReview';
+import { ChatOrderServices } from './ChatOrderServices';
 import { TrackOrder } from './TrackOrder';
 import { Checkout } from './Checkout';
 type Message = { role: 'user' | 'model'; text: string };
@@ -15,12 +16,15 @@ export function ShoppingChat({ products }: { products: Product[] }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [proposal, setProposal] = useState<Proposal[]>([]);
+  const [service, setService] = useState<'reorder'|'change'|null>(null);
   const [reviewing, setReviewing] = useState(false);
   const [tracking, setTracking] = useState(false);
   const [checkout, setCheckout] = useState(false);
   const cart = useCart();
   async function send(e: React.FormEvent) {
     e.preventDefault(); if (!input.trim() || busy) return;
+    if (/reorder|order again/i.test(input)) {setService('reorder');setInput('');return;}
+    if (/change.*order|change.*address|change.*quantity/i.test(input)) {setService('change');setInput('');return;}
     if (/review|feedback|rate my|leave.*rating/i.test(input)) { setReviewing(true); setInput(''); return; }
     if (/track|order status|where.*order|token=|[0-9a-f]{8}-[0-9a-f]{4}-/i.test(input)) { setTracking(true); setInput(''); return; }
     const next: Message[] = [...messages, { role: 'user', text: input.trim() }];
@@ -46,9 +50,13 @@ export function ShoppingChat({ products }: { products: Product[] }) {
     <button onClick={() => setOpen(!open)} className="fixed bottom-5 right-5 z-40 rounded-full bg-cocoa-900 px-5 py-4 font-bold text-white shadow-xl">{open ? 'Close chat' : 'Chat & order'}</button>
     {open && <section aria-label="CreamyNut shopping assistant" className={`fixed bottom-24 right-3 z-40 flex max-h-[75dvh] w-[calc(100%-1.5rem)] flex-col overflow-hidden rounded-3xl border border-cocoa-200 bg-white shadow-xl ${checkout || tracking ? 'sm:w-[650px]' : 'sm:w-96'}`}>
       <div className="border-b p-4"><h2 className="font-bold">CreamyNut assistant</h2><p className="text-xs text-cocoa-600">AI assistance · Review prices and details before ordering.</p></div>
-      {reviewing ? <CustomerReview onBack={() => setReviewing(false)} /> : tracking ? <div className="overflow-y-auto"><TrackOrder embedded onBack={() => setTracking(false)} /></div> : checkout ? <div className="overflow-y-auto p-3"><Checkout onBack={() => setCheckout(false)} /></div> : <>
+      {service ? <ChatOrderServices mode={service} onBack={() => setService(null)} onCheckout={() => {setService(null);setCheckout(true);}} /> : reviewing ? <CustomerReview onBack={() => setReviewing(false)} /> : tracking ? <div className="overflow-y-auto"><TrackOrder embedded onBack={() => setTracking(false)} /></div> : checkout ? <div className="overflow-y-auto p-3"><Checkout onBack={() => setCheckout(false)} /></div> : <>
       <div className="space-y-3 overflow-y-auto p-4" aria-live="polite">
         <button className="font-bold underline" onClick={() => setTracking(true)}>Track an existing order</button>
+        <button className="block font-bold underline" onClick={()=>setService('reorder')}>Order again</button>
+        <button className="block font-bold underline" onClick={()=>setService('change')}>Request an order change</button>
+        <a className="block font-bold underline" target="_blank" rel="noopener noreferrer" href={`https://wa.me/233202001147?text=${encodeURIComponent('Hi CreamyNut, I need help. Here is my chat summary: '+messages.slice(-6).map(m=>`${m.role==='user'?'Customer':'Assistant'}: ${m.text}`).join(' | ').slice(0,2500))}`}>Talk to our team on WhatsApp</a>
+        <button className="block font-bold underline" onClick={()=>setInput('Help me choose a bulk order for my shop or event. Ask about my quantity and needs.')}>Help with a bulk order</button>
         <button className="block font-bold underline" onClick={() => setReviewing(true)}>Leave a rating & review</button>
         <p className="text-sm">Hi! I can help you choose a tub or place an order here. Custom orders start at 10 kg. Please enter delivery details only in the checkout form.</p>
         {messages.map((m, i) => <p key={i} className={`whitespace-pre-wrap rounded-xl p-3 text-sm ${m.role === 'user' ? 'bg-peanut-100' : 'bg-cream-50'}`}><strong>{m.role === 'user' ? 'You' : 'CreamyNut'}: </strong>{m.text}</p>)}

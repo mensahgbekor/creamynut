@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { supabase, formatPrice, adminDeleteOrder, adminRestoreOrder, adminListOrders, adminListOrderActivity, adminUpdateOrderStatus, adminSetOrderNote, adminSetOrderManualAmount, adminSetOrderDeliveryFee, sendOrderReceipt, ORDER_STATUS_OPTIONS } from '@/lib/store';
 import type { AdminOrder, OrderActivity, OrderStatus } from '@/lib/store';
+import { OwnerChangeRequests } from './ChatOrderServices';
 import { OwnerReviews } from './CustomerReview';
 import { ProductManager } from '@/components/ProductManager';
 import { adminRecordPayment } from '@/lib/store';
@@ -104,7 +105,7 @@ export function OwnerDashboard({ onBack }: { onBack: () => void }) {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [newOrderCount, setNewOrderCount] = useState(0);
   const [savingPaymentId, setSavingPaymentId] = useState<string | null>(null);
-  const [activePage, setActivePage] = useState<'orders' | 'analytics' | 'products' | 'archived' | 'activity' | 'reviews'>('orders');
+  const [activePage, setActivePage] = useState<'orders' | 'analytics' | 'products' | 'archived' | 'activity' | 'reviews' | 'changes'>('orders');
   const [analyticsRange, setAnalyticsRange] = useState<0 | 7 | 30>(0);
   const [unlocked, setUnlocked] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
@@ -469,6 +470,7 @@ export function OwnerDashboard({ onBack }: { onBack: () => void }) {
         <button onClick={() => setActivePage('activity')} className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors ${activePage === 'activity' ? 'bg-white text-cocoa-900 shadow-sm' : 'text-cocoa-600 hover:text-cocoa-900'}`}>
           <ActivityIcon className="h-4 w-4" /> Activity
         </button>
+        <button onClick={() => setActivePage('changes')} className="rounded-full px-4 py-2 text-sm font-bold">Change requests</button>
         <button onClick={() => setActivePage('reviews')} className="rounded-full px-4 py-2 text-sm font-bold">Reviews</button>
         <button onClick={() => setActivePage('products')} className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors ${activePage === 'products' ? 'bg-white text-cocoa-900 shadow-sm' : 'text-cocoa-600 hover:text-cocoa-900'}`}><Boxes className="h-4 w-4" /> Products</button>
         <button onClick={() => setActivePage('archived')} className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors ${activePage === 'archived' ? 'bg-white text-cocoa-900 shadow-sm' : 'text-cocoa-600 hover:text-cocoa-900'}`}><Archive className="h-4 w-4" /> Archived</button>
@@ -476,7 +478,7 @@ export function OwnerDashboard({ onBack }: { onBack: () => void }) {
 
       {loadError && <div className="mt-6 rounded-2xl bg-chili-500/10 px-5 py-4 text-sm font-semibold text-chili-600" role="alert">{loadError} <button onClick={loadOrders} className="ml-2 underline">Retry</button></div>}
       {actionError && <div className="mt-6 rounded-2xl bg-chili-500/10 px-5 py-4 text-sm font-semibold text-chili-600" role="alert">{actionError} <button onClick={() => setActionError(null)} className="ml-2 underline">Dismiss</button></div>}
-      {activePage === 'reviews' ? <OwnerReviews /> : activePage === 'products' ? <ProductManager /> : activePage === 'activity' ? (
+      {activePage === 'changes' ? <OwnerChangeRequests /> : activePage === 'reviews' ? <OwnerReviews /> : activePage === 'products' ? <ProductManager /> : activePage === 'activity' ? (
         activityLoading ? <div className="flex items-center gap-3 py-16 text-cocoa-600"><Loader2 className="h-5 w-5 animate-spin" />Loading activity…</div> : activityError ? <div className="mt-6 rounded-2xl bg-chili-500/10 px-5 py-4 text-sm font-semibold text-chili-600" role="alert">{activityError} <button onClick={loadActivity} className="ml-2 underline">Retry</button></div> : activities.length === 0 ? (
           <div className="mt-8 rounded-3xl bg-white p-12 text-center shadow-sm ring-1 ring-cocoa-100">
             <ActivityIcon className="mx-auto h-12 w-12 text-cocoa-300" />
