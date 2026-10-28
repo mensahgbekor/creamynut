@@ -105,7 +105,7 @@ function Storefront() {
       </main>
       <Footer />
       <CartDrawer />
-      {page !== 'owner' && <ShoppingChat products={products} />}
+      {page !== 'owner' && <ShoppingChat />}
       <ToastStack toasts={cart.toasts} onDismiss={cart.dismissToast} />
     </div>
   );
