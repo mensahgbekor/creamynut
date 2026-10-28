@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { label: 'Shop', href: '#shop' },
   { label: 'Our Story', href: '#story' },
   { label: 'Track order', href: '#track' },
+  { label: 'Ratings', href: '#ratings' },
   { label: 'Help', href: '#help' },
 ];
 
