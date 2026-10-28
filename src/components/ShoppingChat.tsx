@@ -3,6 +3,7 @@ import type { Product } from '@/lib/store';
 import { formatPrice } from '@/lib/store';
 import { useCart } from '@/lib/cart-context';
 import { pricedCustomProduct } from '@/lib/pricing';
+import { TrackOrder } from './TrackOrder';
 import { Checkout } from './Checkout';
 type Message = { role: 'user' | 'model'; text: string };
 type Proposal = { product: Product; quantity: number; kg?: number };
@@ -13,10 +14,12 @@ export function ShoppingChat({ products }: { products: Product[] }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [proposal, setProposal] = useState<Proposal[]>([]);
+  const [tracking, setTracking] = useState(false);
   const [checkout, setCheckout] = useState(false);
   const cart = useCart();
   async function send(e: React.FormEvent) {
     e.preventDefault(); if (!input.trim() || busy) return;
+    if (/track|order status|where.*order|token=|[0-9a-f]{8}-[0-9a-f]{4}-/i.test(input)) { setTracking(true); setInput(''); return; }
     const next: Message[] = [...messages, { role: 'user', text: input.trim() }];
     setMessages(next); setInput(''); setBusy(true); setError(''); setProposal([]);
     try {
@@ -38,10 +41,11 @@ export function ShoppingChat({ products }: { products: Product[] }) {
   }
   return <>
     <button onClick={() => setOpen(!open)} className="fixed bottom-5 right-5 z-40 rounded-full bg-cocoa-900 px-5 py-4 font-bold text-white shadow-xl">{open ? 'Close chat' : 'Chat & order'}</button>
-    {open && <section aria-label="CreamyNut shopping assistant" className={`fixed bottom-24 right-3 z-40 flex max-h-[75dvh] w-[calc(100%-1.5rem)] flex-col overflow-hidden rounded-3xl border border-cocoa-200 bg-white shadow-xl ${checkout ? 'sm:w-[650px]' : 'sm:w-96'}`}>
+    {open && <section aria-label="CreamyNut shopping assistant" className={`fixed bottom-24 right-3 z-40 flex max-h-[75dvh] w-[calc(100%-1.5rem)] flex-col overflow-hidden rounded-3xl border border-cocoa-200 bg-white shadow-xl ${checkout || tracking ? 'sm:w-[650px]' : 'sm:w-96'}`}>
       <div className="border-b p-4"><h2 className="font-bold">CreamyNut assistant</h2><p className="text-xs text-cocoa-600">AI assistance · Review prices and details before ordering.</p></div>
-      {checkout ? <div className="overflow-y-auto p-3"><Checkout onBack={() => setCheckout(false)} /></div> : <>
+      {tracking ? <div className="overflow-y-auto"><TrackOrder embedded onBack={() => setTracking(false)} /></div> : checkout ? <div className="overflow-y-auto p-3"><Checkout onBack={() => setCheckout(false)} /></div> : <>
       <div className="space-y-3 overflow-y-auto p-4" aria-live="polite">
+        <button className="font-bold underline" onClick={() => setTracking(true)}>Track an existing order</button>
         <p className="text-sm">Hi! I can help you choose a tub or place an order here. Custom orders start at 10 kg. Please enter delivery details only in the checkout form.</p>
         {messages.map((m, i) => <p key={i} className={`whitespace-pre-wrap rounded-xl p-3 text-sm ${m.role === 'user' ? 'bg-peanut-100' : 'bg-cream-50'}`}><strong>{m.role === 'user' ? 'You' : 'CreamyNut'}: </strong>{m.text}</p>)}
         {busy && <p role="status" className="text-sm">Thinking…</p>}

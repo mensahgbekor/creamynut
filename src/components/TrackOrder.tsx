@@ -4,7 +4,7 @@ import { trackOrder, formatPrice } from '@/lib/store';
 import type { TrackedOrder } from '@/lib/store';
 import { estimatedDispatchDate } from '@/lib/delivery';
 
-export function TrackOrder({ onBack }: { onBack: () => void }) {
+export function TrackOrder({ onBack, embedded = false }: { onBack: () => void; embedded?: boolean }) {
   const initialToken = new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('token') ?? '';
   const [token, setToken] = useState(initialToken);
   const [order, setOrder] = useState<TrackedOrder | null>(null);
@@ -27,8 +27,8 @@ export function TrackOrder({ onBack }: { onBack: () => void }) {
     } catch { setMessage('Could not check the order. Please try again.'); }
     finally { setLoading(false); }
   };
-  return <div className="mx-auto min-h-[70vh] max-w-2xl px-4 pb-20 pt-32">
-    <button onClick={onBack} className="flex items-center gap-2 text-sm font-bold text-cocoa-600"><ArrowLeft className="h-4 w-4" />Back to shop</button>
+  return <div className={embedded ? "p-3" : "mx-auto min-h-[70vh] max-w-2xl px-4 pb-20 pt-32"}>
+    <button onClick={onBack} className="flex items-center gap-2 text-sm font-bold text-cocoa-600"><ArrowLeft className="h-4 w-4" />{embedded ? 'Back to chat' : 'Back to shop'}</button>
     <div className="mt-6 rounded-3xl bg-white p-7 shadow-sm ring-1 ring-cocoa-100 sm:p-10">
       <PackageSearch className="h-9 w-9 text-peanut-600" />
       <h1 className="mt-4 font-display text-3xl font-extrabold text-cocoa-900">Track your order</h1>
