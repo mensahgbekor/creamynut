@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  Star,
   AlertTriangle,
   ArrowLeft,
   ArrowUpRight,
@@ -21,7 +22,6 @@ import {
   RefreshCw,
   Search,
   Settings as SettingsIcon,
-  Star,
   Truck,
   Users,
   X,
@@ -902,10 +902,7 @@ function Inventory() {
                 <p className="text-xs font-semibold capitalize text-cocoa-500">{r.category}</p>
                 <div className="mt-1.5 flex items-center justify-between">
                   <p className="font-bold text-leaf-600">{formatPrice(Number(r.price))}</p>
-                  <p className="flex items-center gap-1 text-xs font-bold text-cocoa-500">
-                    <Star className="h-3.5 w-3.5 fill-gold-400 text-gold-400" />
-                    {Number(r.rating).toFixed(1)} ({r.review_count})
-                  </p>
+
                 </div>
               </div>
             </div>

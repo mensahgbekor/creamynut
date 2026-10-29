@@ -15,14 +15,13 @@ import { OwnerDashboard } from '@/components/OwnerDashboard';
 import { TrackOrder } from '@/components/TrackOrder';
 import { ToastStack } from '@/components/Toast';
 import { ShoppingChat } from '@/components/ShoppingChat';
-import { CustomerReview } from '@/components/CustomerReview';
 import { CustomerInfo } from '@/components/CustomerInfo';
 
 function Storefront() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [page, setPage] = useState<'home' | 'checkout' | 'owner' | 'track' | 'ratings'>('home');
+  const [page, setPage] = useState<'home' | 'checkout' | 'owner' | 'track'>('home');
   const cart = useCart();
   const { syncProducts } = cart;
 
@@ -39,7 +38,8 @@ function Storefront() {
         setPage('owner');
         window.scrollTo({ top: 0 });
       } else if ((window.location.hash === '#ratings' || window.location.hash.startsWith('#ratings?'))) {
-        setPage('ratings');
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        setPage('home');
         window.scrollTo({ top: 0 });
       } else if (window.location.hash === '#checkout') {
         setPage('checkout');
@@ -95,8 +95,6 @@ function Storefront() {
           <div className="pt-20 sm:pt-24">
             <Checkout onBack={() => { setPage('home'); window.location.hash = ''; }} />
           </div>
-        ) : page === 'ratings' ? (
-          <div className="mx-auto max-w-2xl px-4 pb-20 pt-28 sm:pt-32"><CustomerReview onBack={() => { window.location.hash = ''; }} /></div>
         ) : page === 'track' ? (
           <TrackOrder onBack={() => { setPage('home'); window.location.hash = ''; }} />
         ) : (
