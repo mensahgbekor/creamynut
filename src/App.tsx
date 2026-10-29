@@ -38,7 +38,7 @@ function Storefront() {
       if (window.location.hash === '#owner' || window.location.hash.startsWith('#owner&') || window.location.hash.startsWith('#owner?')) {
         setPage('owner');
         window.scrollTo({ top: 0 });
-      } else if (window.location.hash === '#ratings') {
+      } else if ((window.location.hash === '#ratings' || window.location.hash.startsWith('#ratings?'))) {
         setPage('ratings');
         window.scrollTo({ top: 0 });
       } else if (window.location.hash === '#checkout') {

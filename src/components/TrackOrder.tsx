@@ -46,7 +46,7 @@ export function TrackOrder({ onBack, embedded = false }: { onBack: () => void; e
       </dl>
       {!['cancelled', 'shipped', 'delivered'].includes(order.status) && <p className="mt-5 rounded-xl border border-peanut-200 bg-peanut-50 p-3 text-sm"><strong>Estimated dispatch: {estimatedDispatchDate(order.created_at)}</strong><span className="mt-1 block text-xs text-cocoa-600">Based on 7 days of preparation. Contact us for the latest timing; delivery travel time follows dispatch.</span></p>}
       {order.status !== 'cancelled' && <ol aria-label="Order progress" className="mt-5 grid grid-cols-3 gap-2 text-center text-xs">{['Preparing', 'Dispatched', 'Delivered'].map((stage, index) => { const current = order.status === 'delivered' ? 2 : order.status === 'shipped' ? 1 : 0; return <li key={stage} aria-current={current === index ? 'step' : undefined} className={`rounded-xl px-2 py-3 ${index <= current ? 'bg-leaf-600 text-white' : 'bg-cocoa-100 text-cocoa-600'}`}>{stage}</li>; })}</ol>}
-      {order.status === 'delivered' && <a href="#ratings" className="mt-4 block font-bold underline">Rate your delivery and write a review</a>}
+      {order.status === 'delivered' && <a href={`#ratings?token=${encodeURIComponent(token)}`} className="mt-4 block font-bold underline">Rate your delivery and write a review</a>}
       <p className="mt-4 text-xs text-cocoa-600">{order.status === 'cancelled' ? 'This order was cancelled.' : 'Payment on delivery. Allow 7 days for preparation before dispatch.'}</p></div>}
     </div>
   </div>;
