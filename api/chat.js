@@ -9,6 +9,10 @@ export default async function handler(req, res) {
   if (rate.count > 15) return res.status(429).json({ error: 'Please wait a minute before sending another message.' });
   const messages = req.body?.messages;
   if (!Array.isArray(messages) || messages.length > 20 || messages.some(m => !['user', 'model'].includes(m.role) || typeof m.text !== 'string' || m.text.length > 2000)) return res.status(400).json({ error: 'Please send a shorter conversation.' });
+  const latestQuestion = [...messages].reverse().find(message => message.role === 'user')?.text || '';
+  if (/custom|bulk|10\s*kg|enquir|gps|location pin/i.test(latestQuestion)) {
+    return res.status(200).json({ reply: 'For custom orders of 10 kg or more, open the Custom orders page at #custom-order. Enter your quantity, preferred delivery date (at least 7 days away), delivery area and landmark, and contact details. If you are at the delivery address, you may optionally add a GPS pin. The form prepares a WhatsApp message; tap send there. CreamyNut will confirm price, timing and delivery before an order is placed.' });
+  }
   try {
     const catalogResponse = await fetch(`${process.env.VITE_SUPABASE_URL}/rest/v1/products?select=id,name,slug,price,weight,stock,description`, { headers: { apikey: process.env.VITE_SUPABASE_ANON_KEY }, signal: AbortSignal.timeout(10000) });
     if (!catalogResponse.ok) throw new Error('catalog');
