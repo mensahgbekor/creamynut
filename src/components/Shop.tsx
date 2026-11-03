@@ -130,7 +130,7 @@ export function Shop({ products }: { products: Product[] }) {
                     <p className="mt-2 text-xs text-cocoa-500">
                       {product.stock < 1 ? 'Custom orders are temporarily unavailable.' : 'Custom orders start at 10 kg, in 0.5 kg increments. Delivery is quoted separately.'}
                     </p>
-                    <a href="#custom-order" className="mt-4 inline-flex text-sm font-bold text-peanut-700 underline underline-offset-2 hover:text-peanut-900">Buying for a shop or event? Send an enquiry</a>
+                    <a href="#custom-order" className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-peanut-500 bg-peanut-50 px-4 py-3 text-center text-sm font-bold text-peanut-800 transition-colors hover:bg-peanut-100">Buying for a shop or event? Send an enquiry</a>
                   </div>
                 ) : (
                   <div className="mt-auto flex flex-wrap items-center justify-between gap-4 pt-6">

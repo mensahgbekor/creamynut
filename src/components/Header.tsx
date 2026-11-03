@@ -5,6 +5,7 @@ import { useCart } from '@/lib/cart-context';
 
 const NAV_LINKS = [
   { label: 'Shop', href: '#shop' },
+  { label: 'Custom orders', href: '#custom-order' },
   { label: 'Our Story', href: '#story' },
   { label: 'Track order', href: '#track' },
   { label: 'Help', href: '#help' },
@@ -38,7 +39,7 @@ export function Header() {
           </span>
         </a>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-4 md:flex lg:gap-8">
           {NAV_LINKS.map((link) => (
             <a
               key={link.href}
