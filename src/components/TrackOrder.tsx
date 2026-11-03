@@ -1,18 +1,23 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Loader2, PackageSearch } from 'lucide-react';
-import { trackOrder, formatPrice } from '@/lib/store';
+import { ArrowLeft, Loader2, PackageSearch, ShoppingBag } from 'lucide-react';
+import { trackOrder, trackOrderItems, fetchProducts, formatPrice } from '@/lib/store';
 import type { TrackedOrder } from '@/lib/store';
 import { estimatedDispatchDate } from '@/lib/delivery';
+import { useCart } from '@/lib/cart-context';
+import { pricedCustomProduct } from '@/lib/pricing';
 
 export function TrackOrder({ onBack, embedded = false }: { onBack: () => void; embedded?: boolean }) {
   const initialToken = new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('token') ?? '';
   const [token, setToken] = useState(initialToken);
   const [order, setOrder] = useState<TrackedOrder | null>(null);
+  const [orderToken, setOrderToken] = useState(initialToken);
   const [loading, setLoading] = useState(Boolean(initialToken));
   const [message, setMessage] = useState<string | null>(null);
+  const [reordering, setReordering] = useState(false);
+  const cart = useCart();
   useEffect(() => {
     if (!initialToken) return;
-    trackOrder(initialToken).then((result) => { if (result) setOrder(result); else setMessage('No order found for this link.'); })
+    trackOrder(initialToken).then((result) => { if (result) { setOrder(result); setOrderToken(initialToken); } else setMessage('No order found for this link.'); })
       .catch(() => setMessage('Could not check the order. Please try again.'))
       .finally(() => setLoading(false));
   }, [initialToken]);
@@ -22,13 +27,37 @@ export function TrackOrder({ onBack, embedded = false }: { onBack: () => void; e
     setOrder(null);
     try {
       const result = await trackOrder(token.trim());
-      if (result) setOrder(result);
+      if (result) { setOrder(result); setOrderToken(token.trim()); }
       else setMessage('No order found for that private link. Check the full link and try again.');
     } catch { setMessage('Could not check the order. Please try again.'); }
     finally { setLoading(false); }
   };
+  const reorder = async () => {
+    setReordering(true);
+    setMessage(null);
+    try {
+      const [items, products] = await Promise.all([trackOrderItems(orderToken), fetchProducts()]);
+      let added = 0;
+      let skipped = 0;
+      for (const item of items) {
+        const product = products.find((candidate) => candidate.id === item.product_id);
+        const kg = item.requested_kg === undefined ? undefined : Number(item.requested_kg);
+        const currentProduct = product && (kg === undefined ? product : pricedCustomProduct(product, kg, products));
+        if (!currentProduct || currentProduct.stock < 1 || !Number.isInteger(item.quantity) || item.quantity < 1) { skipped++; continue; }
+        const quantity = Math.min(item.quantity, currentProduct.stock);
+        for (let index = 0; index < quantity; index++) cart.add(currentProduct, kg);
+        added += quantity;
+        if (quantity < item.quantity) skipped++;
+      }
+      if (added) {
+        cart.notify(skipped ? 'Available items added. Some items or quantities could not be added.' : 'Items added to your cart at current prices.');
+        cart.openCart();
+      } else setMessage('These items are currently unavailable. Please browse the shop.');
+    } catch { setMessage('Could not load the items for this order. Please try again.'); }
+    finally { setReordering(false); }
+  };
   return <div className={embedded ? "p-3" : "mx-auto min-h-[70vh] max-w-2xl px-4 pb-20 pt-32"}>
-    <button onClick={onBack} className="flex items-center gap-2 text-sm font-bold text-cocoa-600"><ArrowLeft className="h-4 w-4" />{embedded ? 'Back to chat' : 'Back to shop'}</button>
+    <button onClick={onBack} className="flex items-center gap-2 text-sm font-bold text-cocoa-600"><ArrowLeft className="h-4 w-4" />Back to shop</button>
     <div className="mt-6 rounded-3xl bg-white p-7 shadow-sm ring-1 ring-cocoa-100 sm:p-10">
       <PackageSearch className="h-9 w-9 text-peanut-600" />
       <h1 className="mt-4 font-display text-3xl font-extrabold text-cocoa-900">Track your order</h1>
@@ -46,7 +75,9 @@ export function TrackOrder({ onBack, embedded = false }: { onBack: () => void; e
       </dl>
       {!['cancelled', 'shipped', 'delivered'].includes(order.status) && <p className="mt-5 rounded-xl border border-peanut-200 bg-peanut-50 p-3 text-sm"><strong>Estimated dispatch: {estimatedDispatchDate(order.created_at)}</strong><span className="mt-1 block text-xs text-cocoa-600">Based on 7 days of preparation. Contact us for the latest timing; delivery travel time follows dispatch.</span></p>}
       {order.status !== 'cancelled' && <ol aria-label="Order progress" className="mt-5 grid grid-cols-3 gap-2 text-center text-xs">{['Preparing', 'Dispatched', 'Delivered'].map((stage, index) => { const current = order.status === 'delivered' ? 2 : order.status === 'shipped' ? 1 : 0; return <li key={stage} aria-current={current === index ? 'step' : undefined} className={`rounded-xl px-2 py-3 ${index <= current ? 'bg-leaf-600 text-white' : 'bg-cocoa-100 text-cocoa-600'}`}>{stage}</li>; })}</ol>}
-      <p className="mt-4 text-xs text-cocoa-600">{order.status === 'cancelled' ? 'This order was cancelled.' : 'Payment on delivery. Allow 7 days for preparation before dispatch.'}</p></div>}
+      <p className="mt-4 text-xs text-cocoa-600">{order.status === 'cancelled' ? 'This order was cancelled.' : 'Payment on delivery. Allow 7 days for preparation before dispatch.'}</p>
+      <button type="button" onClick={() => void reorder()} disabled={reordering} className="mt-5 inline-flex items-center gap-2 rounded-full bg-peanut-500 px-5 py-3 text-sm font-bold text-white disabled:opacity-50">{reordering ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingBag className="h-4 w-4" />}{reordering ? 'Loading items…' : 'Reorder these items'}</button>
+      <p className="mt-2 text-xs text-cocoa-600">Review current prices, availability, and delivery before placing a new order.</p></div>}
     </div>
   </div>;
 }

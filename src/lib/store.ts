@@ -295,3 +295,9 @@ export async function trackOrder(token: string): Promise<TrackedOrder | null> {
   if (error) throw error;
   return (data?.[0] ?? null) as TrackedOrder | null;
 }
+
+export async function trackOrderItems(token: string): Promise<OrderItem[]> {
+  const { data, error } = await supabase.rpc('track_order_items', { p_token: token });
+  if (error) throw error;
+  return Array.isArray(data) ? data as OrderItem[] : [];
+}
