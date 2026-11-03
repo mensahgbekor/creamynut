@@ -3,5 +3,8 @@ project_id = "noblueteexqplkoxwwgp"
 [functions.receipt-email]
 verify_jwt = true
 
+[functions.custom-order-enquiry]
+verify_jwt = true
+
 [functions.review-invitation]
 verify_jwt = false

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { ArrowLeft, CalendarDays, Loader2, MapPin, MessageCircle } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Loader2, Mail, MapPin } from 'lucide-react';
+import { supabase } from '@/lib/store';
 
 function earliestDate(): string {
   const date = new Date();
@@ -25,6 +26,8 @@ export function CustomOrderEnquiry({ onBack }: { onBack: () => void }) {
   const [locating, setLocating] = useState(false);
   const [locationMessage, setLocationMessage] = useState('');
   const [formError, setFormError] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
   const minDate = earliestDate();
 
   const useLocation = () => {
@@ -48,7 +51,7 @@ export function CustomOrderEnquiry({ onBack }: { onBack: () => void }) {
     );
   };
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const kg = Number(quantity);
     if (!Number.isFinite(kg) || kg < 10 || kg > 10000 || kg % 0.5 !== 0) {
@@ -60,20 +63,19 @@ export function CustomOrderEnquiry({ onBack }: { onBack: () => void }) {
       return;
     }
     setFormError('');
-    const lines = [
-      'Hi CreamyNut, I would like to enquire about a custom order.',
-      `Quantity: ${kg} kg`,
-      `For: ${purpose}`,
-      `Preferred delivery date: ${preferredDate} (subject to confirmation)`,
-      `Delivery area and landmark: ${area.trim()}`,
-      ...(coordinates ? [`Current location pin: https://www.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`] : []),
-      `Name: ${name.trim()}`,
-      `Phone: ${phone.trim()}`,
-      ...(email.trim() ? [`Email: ${email.trim()}`] : []),
-      ...(notes.trim() ? [`Other details: ${notes.trim()}`] : []),
-      'Please confirm availability, price, preparation time and delivery fee.',
-    ];
-    window.location.href = `https://wa.me/233202001147?text=${encodeURIComponent(lines.join('\n'))}`;
+    setSending(true);
+    setFormError('');
+    try {
+      const { error } = await supabase.functions.invoke('custom-order-enquiry', {
+        body: { quantity: kg, purpose, preferredDate, area: area.trim(), name: name.trim(), phone: phone.trim(), email: email.trim(), notes: notes.trim(), coordinates },
+      });
+      if (error) throw error;
+      setSent(true);
+    } catch {
+      setFormError('We could not email your enquiry. Please try again shortly.');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -84,10 +86,10 @@ export function CustomOrderEnquiry({ onBack }: { onBack: () => void }) {
         <h1 className="mt-3 font-display text-3xl font-extrabold text-cocoa-900 sm:text-4xl">Ask about a custom order</h1>
         <p className="mt-3 text-sm leading-6 text-cocoa-600">Tell us what you need. Custom orders start at 10 kg. We’ll confirm availability, price, timing and delivery with you before an order is placed.</p>
         <div className="mt-6 rounded-2xl border border-peanut-200 bg-peanut-50 p-4 text-sm text-cocoa-700">
-          <strong>This is an enquiry, not a confirmed order.</strong> The button below opens WhatsApp with your details. Please tap send there to contact us.
+          <strong>This is an enquiry, not a confirmed order.</strong> Submit the form and CreamyNut will receive it by email. We’ll contact you to confirm the details.
         </div>
 
-        <form onSubmit={submit} className="mt-8 space-y-6">
+        {sent ? <div role="status" className="mt-8 rounded-2xl border border-leaf-600/30 bg-leaf-600/5 p-5 text-sm leading-6 text-cocoa-800"><strong>Your enquiry has been emailed to CreamyNut.</strong><br />We’ll contact you to confirm availability, price, preparation time and delivery before placing an order.</div> : <form onSubmit={(event) => void submit(event)} className="mt-8 space-y-6">
           <div className="grid gap-5 sm:grid-cols-2">
             <label className={labelClass}>Quantity needed (kg)
               <input className={fieldClass} type="number" inputMode="decimal" min="10" max="10000" step="0.5" required value={quantity} onChange={(event) => setQuantity(event.target.value)} placeholder="e.g. 20" />
@@ -127,9 +129,9 @@ export function CustomOrderEnquiry({ onBack }: { onBack: () => void }) {
             <textarea className={fieldClass} rows={3} maxLength={1000} value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Packaging needs, event details, questions…" />
           </label>
           {formError && <p role="alert" className="text-sm font-semibold text-chili-600">{formError}</p>}
-          <button type="submit" className="inline-flex items-center gap-2 rounded-full bg-peanut-500 px-7 py-3.5 text-sm font-bold text-white transition-colors hover:bg-peanut-600"><MessageCircle className="h-4 w-4" />Continue to WhatsApp</button>
+          <button type="submit" disabled={sending} className="inline-flex items-center gap-2 rounded-full bg-peanut-500 px-7 py-3.5 text-sm font-bold text-white transition-colors hover:bg-peanut-600 disabled:opacity-50">{sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}{sending ? 'Sending enquiry…' : 'Send enquiry by email'}</button>
           <p className="text-xs leading-5 text-cocoa-600">We’ll reply to confirm the final price, delivery fee and earliest possible date. Payment is on delivery.</p>
-        </form>
+        </form>}
       </div>
     </section>
   );
