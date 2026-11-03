@@ -47,7 +47,7 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#shop" className="transition-colors hover:text-gold-400">
+                <a href="#custom-order" className="transition-colors hover:text-gold-400">
                   Bulk orders
                 </a>
               </li>

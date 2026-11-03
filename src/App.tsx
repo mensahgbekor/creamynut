@@ -16,12 +16,13 @@ import { TrackOrder } from '@/components/TrackOrder';
 import { ToastStack } from '@/components/Toast';
 import { ShoppingChat } from '@/components/ShoppingChat';
 import { CustomerInfo } from '@/components/CustomerInfo';
+import { CustomOrderEnquiry } from '@/components/CustomOrderEnquiry';
 
 function Storefront() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [page, setPage] = useState<'home' | 'checkout' | 'owner' | 'track'>('home');
+  const [page, setPage] = useState<'home' | 'checkout' | 'owner' | 'track' | 'custom-order'>('home');
   const cart = useCart();
   const { syncProducts } = cart;
 
@@ -43,6 +44,9 @@ function Storefront() {
         window.scrollTo({ top: 0 });
       } else if (window.location.hash === '#checkout') {
         setPage('checkout');
+        window.scrollTo({ top: 0 });
+      } else if (window.location.hash === '#custom-order') {
+        setPage('custom-order');
         window.scrollTo({ top: 0 });
       } else if (window.location.hash === '#track' || window.location.hash.startsWith('#track?')) {
         setPage('track');
@@ -97,6 +101,8 @@ function Storefront() {
           </div>
         ) : page === 'track' ? (
           <TrackOrder onBack={() => { setPage('home'); window.location.hash = ''; }} />
+        ) : page === 'custom-order' ? (
+          <CustomOrderEnquiry onBack={() => { window.location.hash = '#shop'; }} />
         ) : (
           <OwnerDashboard onBack={() => { setPage('home'); window.location.hash = ''; }} />
         )}
