@@ -3,11 +3,9 @@ import { ShoppingBag, Plus, Sparkles } from 'lucide-react';
 import type { Product } from '@/lib/store';
 import { useCart } from '@/lib/cart-context';
 import { fetchRecentOrderActivity, formatPrice } from '@/lib/store';
-import { customPrice, pricedCustomProduct } from '@/lib/pricing';
 
 export function Shop({ products }: { products: Product[] }) {
   const { add, notify } = useCart();
-  const [customKg, setCustomKg] = useState<string>('');
   const [recentOrder, setRecentOrder] = useState(false);
 
   useEffect(() => {
@@ -23,16 +21,6 @@ export function Shop({ products }: { products: Product[] }) {
     notify(`${product.name} added to cart`);
   };
 
-  const handleAddCustom = (product: Product) => {
-    const kg = Number(customKg);
-    if (!Number.isFinite(kg) || kg < 10) return;
-    const customProduct = pricedCustomProduct(product, kg, products);
-    if (!customProduct) return;
-    add(customProduct, kg);
-    notify(`Custom ${kg} kg order added · ${formatPrice(customProduct.price)}`);
-    setCustomKg('');
-  };
-
   return (
     <section id="shop" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
       <div className="text-center">
@@ -43,8 +31,7 @@ export function Shop({ products }: { products: Product[] }) {
           Good things come by the tub.
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-balance text-cocoa-600">
-          Two ready-to-order tubs, or choose a custom order of 10 kg or more. We
-          calculate the price automatically as you choose your kilograms.
+          Choose a ready-to-order tub or enquire about larger quantities in multiples of our standard 5-litre bucket.
         </p>
       </div>
 
@@ -65,7 +52,7 @@ export function Shop({ products }: { products: Product[] }) {
       <div className="mt-12 grid items-stretch gap-6 md:grid-cols-2 xl:grid-cols-3">
         {products.map((product) => {
           const isCustom = product.slug === 'custom-kg';
-          const amount = customPrice(Number(customKg), products);
+          const standardBucket = products.find((item) => item.slug === 'tub-4-5kg');
           return (
             <article
               key={product.id}
@@ -73,8 +60,8 @@ export function Shop({ products }: { products: Product[] }) {
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-cream-100">
                 <img
-                  src={product.image_url}
-                  alt={product.name}
+                  src={isCustom ? '/creamynut-5l-bucket.png' : product.image_url}
+                  alt={isCustom ? 'CreamyNut peanut butter in the standard blue 5-litre bucket' : product.name}
                   loading="lazy"
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
@@ -93,44 +80,15 @@ export function Shop({ products }: { products: Product[] }) {
 
               <div className="flex flex-1 flex-col p-6">
                 <h3 className="font-display text-xl font-bold text-cocoa-900 sm:text-2xl">
-                  {product.name}
+                  {isCustom ? 'CreamyNut Peanut Butter — Standard 5 L Bucket' : product.name}
                 </h3>
-                <p className="mt-2 leading-relaxed text-cocoa-600">{isCustom ? 'Choose the kilograms you need and see your product price instantly, calculated at the same rate as our tubs. Delivery is quoted separately.' : product.description}</p>
+                <p className="mt-2 leading-relaxed text-cocoa-600">{isCustom ? 'Our familiar blue bucket holds approximately 5 litres of peanut butter. Larger orders are available in multiples of this standard bucket.' : product.description}</p>
 
                 {isCustom ? (
                   <div className="mt-6">
-                    <label
-                      htmlFor={`custom-kg-${product.id}`}
-                      className="block text-xs font-extrabold uppercase tracking-wide text-cocoa-500"
-                    >
-                      How many kilograms do you need?
-                    </label>
-                    <div className="mt-2 flex items-stretch gap-2">
-                      <input
-                        id={`custom-kg-${product.id}`}
-                        type="number"
-                        min={10}
-                        max={10000}
-                        step={0.5}
-                        value={customKg}
-                        onChange={(e) => setCustomKg(e.target.value)}
-                        placeholder="e.g. 15"
-                        className="w-24 min-w-0 rounded-xl border border-cocoa-200 bg-cream-50 px-4 py-3 text-sm font-semibold text-cocoa-900 outline-none transition-all focus:border-peanut-500 focus:bg-white focus:ring-2 focus:ring-peanut-500/20"
-                      />
-                      <button
-                        onClick={() => handleAddCustom(product)}
-                        disabled={amount === null || product.stock < 1}
-                        className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-cocoa-900 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-cocoa-800 active:scale-[0.98] disabled:opacity-40 sm:max-w-xs"
-                      >
-                        <ShoppingBag className="h-4 w-4" />
-                        Add custom order
-                      </button>
-                    </div>
-                    <p className="mt-3 font-display text-2xl text-cocoa-900" aria-live="polite">{amount === null ? 'Choose your kilograms' : formatPrice(amount)}</p>
-                    <p className="mt-2 text-xs text-cocoa-500">
-                      {product.stock < 1 ? 'Custom orders are temporarily unavailable.' : 'Custom orders start at 10 kg, in 0.5 kg increments. Delivery is quoted separately.'}
-                    </p>
-                    <a href="#custom-order" className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-peanut-500 bg-peanut-50 px-4 py-3 text-center text-sm font-bold text-peanut-800 transition-colors hover:bg-peanut-100">Buying for a shop or event? Send an enquiry</a>
+                    <p className="font-display text-2xl text-cocoa-900">{standardBucket ? `${formatPrice(standardBucket.price)} per 5 L bucket` : '5 L standard bucket'}</p>
+                    <p className="mt-2 text-xs text-cocoa-500">Bulk enquiries start at 10 L in 5 L multiples. Price uses the current 5 kg tub price per standard bucket; delivery is quoted separately.</p>
+                    <a href="#custom-order" className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-peanut-500 bg-peanut-50 px-4 py-3 text-center text-sm font-bold text-peanut-800 transition-colors hover:bg-peanut-100">Enquire about a bulk quantity</a>
                   </div>
                 ) : (
                   <div className="mt-auto flex flex-wrap items-center justify-between gap-4 pt-6">

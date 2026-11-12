@@ -14,7 +14,7 @@ export function Footer() {
               </span>
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-cream-100/60">
-              Creamy peanut butter by the tub, with custom kilogram orders available.
+              Creamy peanut butter in our familiar blue 5-litre standard bucket, with bulk orders in 5-litre multiples.
             </p>
             <div className="mt-5 flex gap-3">
               <a
@@ -43,7 +43,7 @@ export function Footer() {
               </li>
               <li>
                 <a href="#shop" className="transition-colors hover:text-gold-400">
-                  Custom kilograms
+                  Custom litre orders
                 </a>
               </li>
               <li>
