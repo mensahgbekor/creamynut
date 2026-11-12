@@ -47,7 +47,7 @@ export function ShoppingChat() {
       <div className="shrink-0 border-b p-4">
         <h2 className="font-bold">CreamieBot</h2>
         <p className="text-xs text-cocoa-600">AI answers about products, delivery and ordering policies.</p>
-        <a href="#custom-order" onClick={() => setOpen(false)} className="mt-3 inline-block text-sm font-bold text-peanut-700 underline underline-offset-2">Bulk order enquiry (10 L+)</a>
+        <a href="#custom-order" onClick={() => setOpen(false)} className="mt-3 inline-block text-sm font-bold text-peanut-700 underline underline-offset-2">Bulk order enquiry (15 L+)</a>
       </div>
       <div className="min-h-0 space-y-3 overflow-y-auto p-4" aria-live="polite">
         <p className="text-sm">Hi, I’m CreamieBot. Ask me about CreamyNut products, delivery, payment, or preparation times.</p>

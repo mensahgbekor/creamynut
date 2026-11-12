@@ -54,8 +54,8 @@ export function CustomOrderEnquiry({ onBack }: { onBack: () => void }) {
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const litres = Number(quantity);
-    if (!Number.isFinite(litres) || litres < 10 || litres > 10000 || litres % 5 !== 0) {
-      setFormError('Enter at least 10 litres in 5-litre increments.');
+    if (!Number.isFinite(litres) || litres < 15 || litres > 10000 || litres % 5 !== 0) {
+      setFormError('Enter at least 15 litres in 5-litre increments.');
       return;
     }
     if (preferredDate < earliestDate()) {
@@ -84,7 +84,7 @@ export function CustomOrderEnquiry({ onBack }: { onBack: () => void }) {
       <div className="mt-6 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-cocoa-100 sm:p-10">
         <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-peanut-700">For shops, events and large orders</p>
         <h1 className="mt-3 font-display text-3xl font-extrabold text-cocoa-900 sm:text-4xl">Ask about a custom order</h1>
-        <p className="mt-3 text-sm leading-6 text-cocoa-600">Tell us what you need. Bulk orders start at 10 litres, in 5-litre multiples. One standard blue bucket holds approximately 5 litres. We’ll confirm availability, price, timing and delivery before an order is placed.</p>
+        <p className="mt-3 text-sm leading-6 text-cocoa-600">Tell us what you need. Bulk orders start at 15 litres, in 5-litre multiples. One standard blue bucket holds approximately 5 litres. We’ll confirm availability, price, timing and delivery before an order is placed.</p>
         <div className="mt-6 rounded-2xl border border-peanut-200 bg-peanut-50 p-4 text-sm text-cocoa-700">
           <strong>This is an enquiry, not a confirmed order.</strong> Submit the form and CreamyNut will receive it by email. We’ll contact you to confirm the details.
         </div>
@@ -92,7 +92,7 @@ export function CustomOrderEnquiry({ onBack }: { onBack: () => void }) {
         {sent ? <div role="status" className="mt-8 rounded-2xl border border-leaf-600/30 bg-leaf-600/5 p-5 text-sm leading-6 text-cocoa-800"><strong>Your enquiry has been emailed to CreamyNut.</strong><br />We’ll contact you to confirm availability, price, preparation time and delivery before placing an order.</div> : <form onSubmit={(event) => void submit(event)} className="mt-8 space-y-6">
           <div className="grid gap-5 sm:grid-cols-2">
             <label className={labelClass}>Quantity needed (litres)
-              <input className={fieldClass} type="number" inputMode="numeric" min="10" max="10000" step="5" required value={quantity} onChange={(event) => setQuantity(event.target.value)} placeholder="e.g. 10" />
+              <input className={fieldClass} type="number" inputMode="numeric" min="15" max="10000" step="5" required value={quantity} onChange={(event) => setQuantity(event.target.value)} placeholder="e.g. 15" />
             </label>
             <label className={labelClass}>What is it for?
               <select className={fieldClass} required value={purpose} onChange={(event) => setPurpose(event.target.value)}>
@@ -130,7 +130,7 @@ export function CustomOrderEnquiry({ onBack }: { onBack: () => void }) {
           </label>
           {formError && <p role="alert" className="text-sm font-semibold text-chili-600">{formError}</p>}
           <button type="submit" disabled={sending} className="inline-flex items-center gap-2 rounded-full bg-peanut-500 px-7 py-3.5 text-sm font-bold text-white transition-colors hover:bg-peanut-600 disabled:opacity-50">{sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}{sending ? 'Sending enquiry…' : 'Send enquiry by email'}</button>
-          <p className="text-xs leading-5 text-cocoa-600">Price is calculated using the current 5 kg tub price for each standard 5-litre bucket. We’ll confirm the total, delivery fee and earliest possible date. Payment is on delivery.</p>
+          <p className="text-xs leading-5 text-cocoa-600">Price is calculated per standard 5-litre bucket. We’ll confirm the total, delivery fee and earliest possible date. Payment is on delivery.</p>
         </form>}
       </div>
     </section>

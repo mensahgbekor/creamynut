@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ShoppingBag, Plus, Sparkles } from 'lucide-react';
+import { Plus, Sparkles } from 'lucide-react';
 import type { Product } from '@/lib/store';
 import { useCart } from '@/lib/cart-context';
 import { fetchRecentOrderActivity, formatPrice } from '@/lib/store';
@@ -28,7 +28,7 @@ export function Shop({ products }: { products: Product[] }) {
           The Shop
         </p>
         <h2 className="text-balance mt-2 font-display text-3xl font-extrabold text-cocoa-900 sm:text-4xl">
-          Good things come by the tub.
+          Good things come by the bucket.
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-balance text-cocoa-600">
           Choose a ready-to-order tub or enquire about larger quantities in multiples of our standard 5-litre bucket.
@@ -80,14 +80,14 @@ export function Shop({ products }: { products: Product[] }) {
 
               <div className="flex flex-1 flex-col p-6">
                 <h3 className="font-display text-xl font-bold text-cocoa-900 sm:text-2xl">
-                  {isCustom ? 'CreamyNut Peanut Butter — Standard 5 L Bucket' : product.name}
+                  {isCustom ? 'Bulk Peanut Butter — 15 Litres & Above' : product.name}
                 </h3>
                 <p className="mt-2 leading-relaxed text-cocoa-600">{isCustom ? 'Our familiar blue bucket holds approximately 5 litres of peanut butter. Larger orders are available in multiples of this standard bucket.' : product.description}</p>
 
                 {isCustom ? (
                   <div className="mt-6">
                     <p className="font-display text-2xl text-cocoa-900">{standardBucket ? `${formatPrice(standardBucket.price)} per 5 L bucket` : '5 L standard bucket'}</p>
-                    <p className="mt-2 text-xs text-cocoa-500">Bulk enquiries start at 10 L in 5 L multiples. Price uses the current 5 kg tub price per standard bucket; delivery is quoted separately.</p>
+                    <p className="mt-2 text-xs text-cocoa-500">Bulk enquiries start at 15 L in 5 L multiples, measured by our familiar Ghanaian blue bucket. Delivery is quoted separately.</p>
                     <a href="#custom-order" className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-peanut-500 bg-peanut-50 px-4 py-3 text-center text-sm font-bold text-peanut-800 transition-colors hover:bg-peanut-100">Enquire about a bulk quantity</a>
                   </div>
                 ) : (

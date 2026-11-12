@@ -41,8 +41,8 @@ Deno.serve(async (req: Request) => {
     const longitude = data.coordinates?.longitude;
     const validPurpose = ["Shop", "Event", "Household", "Other"].includes(purpose);
     const minDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-    if (!Number.isFinite(quantity) || quantity < 10 || quantity > 10_000 || quantity % 5 !== 0 || !validPurpose || !/^\d{4}-\d{2}-\d{2}$/.test(preferredDate) || preferredDate < minDate || area.length < 5 || area.length > 250 || name.length < 2 || name.length > 120 || phone.length < 7 || phone.length > 25 || email.length > 254 || (email && !/^\S+@\S+\.\S+$/.test(email)) || notes.length > 1000) {
-      return respond(400, { error: "Please check the enquiry details. Bulk quantities must be at least 10 litres in 5-litre multiples, with a date at least 7 days away." });
+    if (!Number.isFinite(quantity) || quantity < 15 || quantity > 10_000 || quantity % 5 !== 0 || !validPurpose || !/^\d{4}-\d{2}-\d{2}$/.test(preferredDate) || preferredDate < minDate || area.length < 5 || area.length > 250 || name.length < 2 || name.length > 120 || phone.length < 7 || phone.length > 25 || email.length > 254 || (email && !/^\S+@\S+\.\S+$/.test(email)) || notes.length > 1000) {
+      return respond(400, { error: "Please check the enquiry details. Bulk quantities must be at least 15 litres in 5-litre multiples, with a date at least 7 days away." });
     }
     const hasCoordinates = Number.isFinite(latitude) && Number.isFinite(longitude) && Math.abs(latitude) <= 90 && Math.abs(longitude) <= 180;
     const user = Deno.env.get("GMAIL_USER");

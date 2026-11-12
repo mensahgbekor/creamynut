@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Loader2, Save } from 'lucide-react';
 import { adminListProducts, adminUpdateProduct, formatPrice } from '@/lib/store';
 import type { Product } from '@/lib/store';
-import { customPrice } from '@/lib/pricing';
 
 export function ProductManager() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -29,8 +28,8 @@ export function ProductManager() {
     {loading ? <div className="flex items-center gap-2 py-12"><Loader2 className="h-5 w-5 animate-spin" />Loading products…</div> : products.length === 0 ? <p className="py-8 text-cocoa-600">No products found. <button className="underline" onClick={() => { setLoading(true); setMessage(null); void reload(); }}>Retry</button></p> : products.map((product) => <div key={product.id} className="grid gap-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-cocoa-100 sm:grid-cols-[80px_1fr]">
       <img src={product.image_url} alt="" className="h-20 w-20 rounded-xl object-cover" />
       <div>
-        <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-display text-lg font-bold text-cocoa-900">{product.name}</h2><span className="text-sm font-bold text-cocoa-600">{product.slug === 'custom-kg' ? 'Calculated by weight' : formatPrice(product.price)} · {product.stock} units</span></div>
-        {product.slug === 'custom-kg' && <p className="mt-2 text-sm text-cocoa-600">Bulk enquiries start at 10 litres in 5-litre multiples. The current 5 kg tub price is used as the price for each standard 5-litre bucket.</p>}
+        <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-display text-lg font-bold text-cocoa-900">{product.name}</h2><span className="text-sm font-bold text-cocoa-600">{product.slug === 'custom-kg' ? 'Priced per bucket' : formatPrice(product.price)} · {product.stock} units</span></div>
+        {product.slug === 'custom-kg' && <p className="mt-2 text-sm text-cocoa-600">Bulk enquiries start at 15 litres in 5-litre multiples. Each standard Ghanaian blue bucket holds approximately 5 litres.</p>}
         <div className="mt-4 grid gap-3 sm:grid-cols-[120px_120px_minmax(0,1fr)]">
           <label className="text-xs font-bold text-cocoa-600">{product.slug === 'custom-kg' ? 'Pricing' : 'Price (GH₵)'}<input type={product.slug === 'custom-kg' ? 'text' : 'number'} disabled={product.slug === 'custom-kg'} min="0" step="0.01" value={product.slug === 'custom-kg' ? 'Automatic' : product.price} onChange={(e) => edit(product.id, 'price', e.target.value)} className="mt-1 w-full rounded-lg border border-cocoa-200 p-2 text-sm disabled:bg-cream-100" /></label>
           <label className="text-xs font-bold text-cocoa-600">Stock<input type="number" min="0" step="1" value={product.stock} onChange={(e) => edit(product.id, 'stock', e.target.value)} className="mt-1 w-full rounded-lg border border-cocoa-200 p-2 text-sm" /></label>
