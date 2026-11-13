@@ -31,7 +31,7 @@ export function Shop({ products }: { products: Product[] }) {
           Good things come by the bucket.
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-balance text-cocoa-600">
-          Choose a ready-to-order tub or enquire about larger quantities in multiples of our standard 5-litre bucket.
+          Choose a ready-to-order tub or enquire about larger quantities in multiples of our standard 4-litre bucket.
         </p>
       </div>
 
@@ -60,8 +60,8 @@ export function Shop({ products }: { products: Product[] }) {
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-cream-100">
                 <img
-                  src={isCustom ? '/creamynut-5l-bucket.png' : product.image_url}
-                  alt={isCustom ? 'CreamyNut peanut butter in the standard blue 5-litre bucket' : product.name}
+                  src={isCustom ? '/creamynut-4l-bucket.png' : product.image_url}
+                  alt={isCustom ? 'CreamyNut peanut butter in the standard blue 4-litre bucket' : product.name}
                   loading="lazy"
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
@@ -80,14 +80,14 @@ export function Shop({ products }: { products: Product[] }) {
 
               <div className="flex flex-1 flex-col p-6">
                 <h3 className="font-display text-xl font-bold text-cocoa-900 sm:text-2xl">
-                  {isCustom ? 'Bulk Peanut Butter — 15 Litres & Above' : product.name}
+                  {isCustom ? 'Bulk Peanut Butter — 12 Litres & Above' : product.name}
                 </h3>
-                <p className="mt-2 leading-relaxed text-cocoa-600">{isCustom ? 'Our familiar blue bucket holds approximately 5 litres of peanut butter. Larger orders are available in multiples of this standard bucket.' : product.description}</p>
+                <p className="mt-2 leading-relaxed text-cocoa-600">{isCustom ? 'Our familiar blue bucket holds approximately 4 litres of peanut butter. Larger orders are available in multiples of this standard bucket.' : product.description}</p>
 
                 {isCustom ? (
                   <div className="mt-6">
-                    <p className="font-display text-2xl text-cocoa-900">{standardBucket ? `${formatPrice(standardBucket.price)} per 5 L bucket` : '5 L standard bucket'}</p>
-                    <p className="mt-2 text-xs text-cocoa-500">Bulk enquiries start at 15 L in 5 L multiples, measured by our familiar Ghanaian blue bucket. Delivery is quoted separately.</p>
+                    <p className="font-display text-2xl text-cocoa-900">{standardBucket ? `${formatPrice(standardBucket.price)} per 4 L bucket` : '4 L standard bucket'}</p>
+                    <p className="mt-2 text-xs text-cocoa-500">Bulk enquiries start at 12 L in 4 L multiples, measured by our familiar Ghanaian blue bucket. Delivery is quoted separately.</p>
                     <a href="#custom-order" className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-peanut-500 bg-peanut-50 px-4 py-3 text-center text-sm font-bold text-peanut-800 transition-colors hover:bg-peanut-100">Enquire about a bulk quantity</a>
                   </div>
                 ) : (

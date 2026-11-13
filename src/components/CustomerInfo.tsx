@@ -4,7 +4,7 @@ const questions = [
   ['When will my order be ready?', 'Please allow 7 days for preparation before dispatch. Delivery travel time follows dispatch and depends on your location.'],
   ['How much is delivery?', 'We quote delivery from our base to your address. There is no flat delivery fee. We confirm the quote with you before payment.'],
   ['When do I pay?', 'Payment is on delivery. Your order confirmation shows the product amount; your private tracking page shows the delivery fee after it is confirmed.'],
-  ['What is the minimum bulk order?', 'Bulk orders start at 15 litres in 5-litre multiples. One standard Ghanaian blue bucket holds approximately 5 litres. The current price for that standard bucket is used.'],
+  ['What is the minimum bulk order?', 'Bulk orders start at 12 litres in 4-litre multiples. One standard Ghanaian blue bucket holds approximately 4 litres. The current price for that standard bucket is used.'],
   ['How can I check my order?', 'Use the private tracking link from your confirmation or receipt email. Keep the link private and contact us with your order number if you need help.'],
 ];
 
