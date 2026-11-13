@@ -336,7 +336,7 @@ export function Checkout({ onBack, embedded = false }: { onBack: () => void; emb
                 <span>{formatPrice(subtotal)}</span>
               </div>
               <p className="text-xs text-cocoa-600">We&rsquo;ll calculate delivery from your address and confirm the fee before payment.</p>
-              <p className="text-xs text-cocoa-600">Custom kilogram prices are included above. Delivery is quoted separately.</p>
+              <p className="text-xs text-cocoa-600">Product prices are included above. Delivery is quoted separately.</p>
             </div>
           </aside>
         </div>

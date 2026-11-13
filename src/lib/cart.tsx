@@ -9,11 +9,11 @@ import { pricedCustomProduct } from '@/lib/pricing';
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem('creamynut-cart-v1') ?? '[]');
+      const saved = JSON.parse(localStorage.getItem('creamynut-cart-litres-v2') ?? '[]');
       return Array.isArray(saved) ? saved.filter((line) => line?.product?.id && Number.isInteger(line?.quantity) && line.quantity > 0) : [];
     } catch { return []; }
   });
-  useEffect(() => { try { localStorage.setItem('creamynut-cart-v1', JSON.stringify(lines)); } catch { /* Storage may be unavailable. */ } }, [lines]);
+  useEffect(() => { try { localStorage.setItem('creamynut-cart-litres-v2', JSON.stringify(lines)); } catch { /* Storage may be unavailable. */ } }, [lines]);
   const [isOpen, setIsOpen] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
