@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Sparkles } from 'lucide-react';
+import { Check, Link as LinkIcon, Plus, Share2, Sparkles } from 'lucide-react';
 import type { Product } from '@/lib/store';
 import { useCart } from '@/lib/cart-context';
 import { fetchRecentOrderActivity, formatPrice } from '@/lib/store';
@@ -7,6 +7,7 @@ import { fetchRecentOrderActivity, formatPrice } from '@/lib/store';
 export function Shop({ products }: { products: Product[] }) {
   const { add, notify } = useCart();
   const [recentOrder, setRecentOrder] = useState(false);
+  const [copiedProduct, setCopiedProduct] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -19,6 +20,26 @@ export function Shop({ products }: { products: Product[] }) {
   const handleAddFixed = (product: Product) => {
     add(product);
     notify(`${product.name} added to cart`);
+  };
+
+  const productUrl = (product: Product) => `${window.location.origin}/#product-${encodeURIComponent(product.slug)}`;
+  const productShareText = (product: Product) => `${product.name} · ${formatPrice(product.price)} · ${product.weight ?? ''}\n${productUrl(product)}`;
+  const copyProductLink = async (product: Product) => {
+    const url = productUrl(product);
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const input = document.createElement('textarea');
+      input.value = url;
+      input.style.position = 'fixed';
+      input.style.opacity = '0';
+      document.body.append(input);
+      input.select();
+      document.execCommand('copy');
+      input.remove();
+    }
+    setCopiedProduct(product.slug);
+    window.setTimeout(() => setCopiedProduct((current) => current === product.slug ? null : current), 2000);
   };
 
   return (
@@ -56,7 +77,8 @@ export function Shop({ products }: { products: Product[] }) {
           return (
             <article
               key={product.id}
-              className="group flex flex-col overflow-hidden rounded-3xl border border-cocoa-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-warm"
+              id={`product-${product.slug}`}
+              className="group flex flex-col overflow-hidden rounded-3xl border border-cocoa-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-warm scroll-mt-28"
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-cream-100">
                 <img
@@ -108,6 +130,15 @@ export function Shop({ products }: { products: Product[] }) {
                     </button>
                   </div>
                 )}
+                <div className="mt-5 flex flex-wrap gap-2 border-t border-cocoa-100 pt-4">
+                  <button type="button" onClick={() => void copyProductLink(product)} className="inline-flex items-center gap-2 rounded-full border border-cocoa-200 px-4 py-2 text-xs font-bold text-cocoa-700 hover:bg-cream-50" aria-label={`Copy link to ${product.name}`}>
+                    {copiedProduct === product.slug ? <Check className="h-4 w-4" /> : <LinkIcon className="h-4 w-4" />}
+                    {copiedProduct === product.slug ? 'Link copied' : 'Copy product link'}
+                  </button>
+                  <a href={`https://wa.me/?text=${encodeURIComponent(productShareText(product))}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#25D366]/10 px-4 py-2 text-xs font-bold text-[#13783a] hover:bg-[#25D366]/20" aria-label={`Share ${product.name} on WhatsApp`}>
+                    <Share2 className="h-4 w-4" />Share on WhatsApp
+                  </a>
+                </div>
               </div>
             </article>
           );
