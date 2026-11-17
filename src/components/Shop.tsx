@@ -22,8 +22,9 @@ export function Shop({ products }: { products: Product[] }) {
     notify(`${product.name} added to cart`);
   };
 
-  const productUrl = (product: Product) => `${window.location.origin}/#product-${encodeURIComponent(product.slug)}`;
-  const productShareText = (product: Product) => `${product.name} · ${formatPrice(product.price)} · ${product.weight ?? ''}\n${productUrl(product)}`;
+  const productUrl = (product: Product) => `${window.location.origin}/p/${encodeURIComponent(product.slug)}`;
+  const productShareText = (product: Product) => `${product.name} · ${product.slug === 'custom-kg' ? 'Bulk enquiry' : formatPrice(product.price)} · ${product.weight ?? ''}\n${productUrl(product)}`;
+  const buyUrl = (product: Product) => `${window.location.origin}/p/${encodeURIComponent(product.slug)}?buy=1`;
   const copyProductLink = async (product: Product) => {
     const url = productUrl(product);
     try {
@@ -138,6 +139,9 @@ export function Shop({ products }: { products: Product[] }) {
                   <a href={`https://wa.me/?text=${encodeURIComponent(productShareText(product))}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#25D366]/10 px-4 py-2 text-xs font-bold text-[#13783a] hover:bg-[#25D366]/20" aria-label={`Share ${product.name} on WhatsApp`}>
                     <Share2 className="h-4 w-4" />Share on WhatsApp
                   </a>
+                  <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl(product))}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-full border border-cocoa-200 px-4 py-2 text-xs font-bold text-cocoa-700 hover:bg-cream-50">Facebook</a>
+                  <button type="button" onClick={() => void navigator.share?.({ title: product.name, text: productShareText(product), url: productUrl(product) })} className="inline-flex items-center rounded-full border border-cocoa-200 px-4 py-2 text-xs font-bold text-cocoa-700 hover:bg-cream-50">More apps</button>
+                  {!isCustom && <a href={buyUrl(product)} className="inline-flex items-center rounded-full border border-cocoa-200 px-4 py-2 text-xs font-bold text-cocoa-700 hover:bg-cream-50">Share buy link</a>}
                 </div>
               </div>
             </article>

@@ -1,4 +1,5 @@
 {
+  "rewrites": [{ "source": "/p/:slug", "destination": "/api/product?slug=:slug" }],
   "headers": [
     {
       "source": "/(.*)",

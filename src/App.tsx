@@ -25,6 +25,7 @@ function Storefront() {
   const [page, setPage] = useState<'home' | 'checkout' | 'owner' | 'track' | 'custom-order'>('home');
   const cart = useCart();
   const { syncProducts } = cart;
+  const { add, openCart, notify } = cart;
 
   useEffect(() => {
     fetchProducts()
@@ -65,6 +66,18 @@ function Storefront() {
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, [page]);
+
+  useEffect(() => {
+    if (!products.length) return;
+    const match = window.location.hash.match(/^#product-([a-z0-9-]+)\?buy=1$/);
+    if (!match) return;
+    const product = products.find((item) => item.slug === match[1] && item.slug !== 'custom-kg');
+    window.history.replaceState(null, '', `/#product-${match[1]}`);
+    if (!product || product.stock < 1) return;
+    add(product);
+    openCart();
+    notify(`${product.name} added. Review your cart before checkout.`);
+  }, [products, add, openCart, notify]);
 
   return (
     <div className="min-h-screen bg-cream-50">
